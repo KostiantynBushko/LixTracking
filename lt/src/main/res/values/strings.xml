@@ -11,4 +11,8 @@
     <string name="camera">Camera</string>
     <string name="video">Video</string>
     <string name="email">EMail</string>
+
+    <color name="light_gray">#ffc1c1c1</color>
+    <color name="dark_gray">#ff858585</color>
+
 </resources>

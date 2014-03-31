@@ -3,6 +3,7 @@ package com.lixtracking.lt.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -12,10 +13,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
+import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
 
 import org.apache.http.HttpEntity;
@@ -29,7 +32,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -52,29 +54,51 @@ public class LoginActivity extends Activity implements View.OnClickListener{
 
     EditText eUserName = null;
     EditText ePassword = null;
-
     private String message = "";
+    Context context = null;
+    CheckBox checkBox;
+    Settings settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.login);
+        context = this;
 
-        eUserName = (EditText)findViewById(R.id.eUsername);
-        ePassword = (EditText)findViewById(R.id.ePassword);
-
-        Button SigIn = (Button)findViewById(R.id.bSigIn);
-        Button Registered = (Button)findViewById(R.id.bRegistration);
-
+        eUserName = (EditText)findViewById(R.id.editText);
+        ePassword = (EditText)findViewById(R.id.editText2);
+        Button SigIn = (Button)findViewById(R.id.button);
         SigIn.setOnClickListener(this);
-        Registered.setOnClickListener(this);
+        checkBox = (CheckBox)findViewById(R.id.checkBox);
+
+        settings = new Settings(context);
+        if(settings.isUserSaved()) {
+            eUserName.setText(settings.getUserId());
+            ePassword.setText(settings.getUserPassword());
+            checkBox.setChecked(true);
+        }else {
+            checkBox.setChecked(false);
+        }
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkBox.isChecked()) {
+                    checkBox.setChecked(true);
+                    settings.setUserSession(true);
+                }else {
+                    checkBox.setChecked(false);
+                    settings.setUserSession(false);
+                }
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.bSigIn:
+            case R.id.button:
+
                 if(eUserName.length() == 0 || ePassword.length() == 0){
                     message = "Please complate fields";
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
@@ -93,10 +117,6 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                     new LoginTask().execute(URL.host + "VerifyUserLogin");
                 }
                 break;
-            case R.id.bRegistration:
-                //Intent intent = new Intent(this, RegisteredActivity.class);
-                //startActivity(intent);
-                break;
             default: break;
         }
     }
@@ -106,15 +126,12 @@ public class LoginActivity extends Activity implements View.OnClickListener{
         super.onResume();
         //overridePendingTransition(R.anim.in_a,R.anim.out_a);
     }
-
     /**********************************************************************************************/
     /* Login async task */
     /**********************************************************************************************/
     class LoginTask extends AsyncTask<String, Void, Boolean> {
         private ProgressDialog progressDialog = null;
         boolean result = false;
-        JSONObject User;
-        int userId;
         HttpResponse httpResponse;
 
         @Override
@@ -125,14 +142,11 @@ public class LoginActivity extends Activity implements View.OnClickListener{
         @Override
         protected Boolean doInBackground(String... url) {
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
-            HttpConnectionParams.setSoTimeout(httpParams, 2000);
+            HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
+            HttpConnectionParams.setSoTimeout(httpParams, 25000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(url[0]);
-            Log.i("info",url[0]);
-            Log.i("info","user_id : " + eUserName.getText());
-            Log.i("info","password : " + ePassword.getText());
 
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             List<NameValuePair> nameValuePairsList = new ArrayList<NameValuePair>(2);
@@ -157,7 +171,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 result = false;
                 e.printStackTrace();
             }
-            return true;//result;
+            return result;
         }
 
         @Override
@@ -166,9 +180,12 @@ public class LoginActivity extends Activity implements View.OnClickListener{
             progressDialog.dismiss();
             progressDialog.cancel();
 
-
             if (result == true) {
-                // User success login
+                if(checkBox.isChecked()) {
+                    settings.setUserSession(true);
+                }
+                settings.setUserId(eUserName.getText().toString());
+                settings.setUserPassword(ePassword.getText().toString());
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -198,10 +215,8 @@ public class LoginActivity extends Activity implements View.OnClickListener{
             while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
                 switch (xpp.getEventType()) {
                     case XmlPullParser.START_DOCUMENT:
-                        Log.i("info", "START_DOCUMENT");
                         break;
                     case XmlPullParser.START_TAG:
-                        Log.i("info", "START_TAG: " + xpp.getName() + ", depth = " + xpp.getDepth() + ", attrCount = " + xpp.getAttributeCount());
                         tmp = "";
                         for (int i = 0; i < xpp.getAttributeCount(); i++) {
                             tmp = tmp + xpp.getAttributeName(i) + " = " + xpp.getAttributeValue(i) + ", ";
@@ -210,19 +225,15 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                             Log.i("info", "Attributes: " + tmp);
                         break;
                     case XmlPullParser.END_TAG:
-                        Log.i("info", "END_TAG: " + xpp.getName());
                         break;
                     case XmlPullParser.TEXT:
-                        Log.i("info", "text = " + xpp.getText());
                         result = Boolean.parseBoolean(xpp.getText());
-                        Log.i("info"," result : " + Boolean.toString(result));
                         break;
                     default:
                         break;
                 }
                 xpp.next();
             }
-            Log.d("info", "END_DOCUMENT");
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         } catch (IOException e) {

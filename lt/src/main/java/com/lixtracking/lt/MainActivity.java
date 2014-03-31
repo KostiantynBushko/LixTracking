@@ -15,8 +15,10 @@ import com.lixtracking.lt.fragment.FragmentAlarm;
 import com.lixtracking.lt.fragment.FragmentHome;
 import com.lixtracking.lt.fragment.FragmentMap;
 import com.lixtracking.lt.fragment.FragmentMore;
+import com.lixtracking.lt.parsers.VehicleData;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 
@@ -24,6 +26,9 @@ public class MainActivity extends FragmentActivity {
     private TabHost mTabHost;
     private HashMap<String, Stack<Fragment>> fragmentStack;
     private String currentTab;
+    public List<VehicleData> vehicleDataListGlobal = null;
+
+    public static FragmentManager fragmentManager;
 
     public static final String TAB_HOME   = "tab_home";
     public static final String TAB_MAP    = "tab_map";
@@ -34,6 +39,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fragmentManager = getSupportFragmentManager();
 
         fragmentStack = new HashMap<String, Stack<Fragment>>();
         fragmentStack.put(TAB_HOME, new Stack<Fragment>());
@@ -76,7 +82,7 @@ public class MainActivity extends FragmentActivity {
                 return findViewById(R.id.realtabcontent);
             }
         });
-        spec.setIndicator(createTabView(R.drawable.tab_b_state_btn));
+        spec.setIndicator(createTabView(R.drawable.tab_c_state_btn));
         mTabHost.addTab(spec);
 
         spec = mTabHost.newTabSpec(TAB_MORE);
@@ -85,7 +91,7 @@ public class MainActivity extends FragmentActivity {
                 return findViewById(R.id.realtabcontent);
             }
         });
-        spec.setIndicator(createTabView(R.drawable.tab_b_state_btn));
+        spec.setIndicator(createTabView(R.drawable.tab_d_state_btn));
         mTabHost.addTab(spec);
     }
     /**********************************************************************************************/
@@ -139,5 +145,11 @@ public class MainActivity extends FragmentActivity {
         FragmentTransaction ft = manager.beginTransaction();
         ft.replace(R.id.realtabcontent, fragment);
         ft.commit();
+    }
+    public List<VehicleData> getVehicle() {
+        return vehicleDataListGlobal;
+    }
+    public String getCurrentFragmentTag() {
+        return currentTab;
     }
 }
