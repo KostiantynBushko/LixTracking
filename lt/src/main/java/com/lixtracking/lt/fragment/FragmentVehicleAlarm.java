@@ -3,25 +3,23 @@ package com.lixtracking.lt.fragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.VehicleDetail;
-import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
-import com.lixtracking.lt.parsers.ParceVehicles;
+import com.lixtracking.lt.parsers.AlertData;
+import com.lixtracking.lt.parsers.ParseAlertList;
 import com.lixtracking.lt.parsers.VehicleData;
 
 import org.apache.http.HttpEntity;
@@ -44,91 +42,49 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by saiber on 26.03.2014.
+ * Created by saiber on 01.04.2014.
  */
-public class FragmentHome extends Fragment {
-    private static final String NAME = "name";
-    private static final String GPS_ID = "vin";
-    private static final String STOCK_NUMBER = "stok_number";
-    private static final String ID  = "id";
-    private static final String ICON  = "icon";
-
+public class FragmentVehicleAlarm extends Fragment {
+    private static final String ID = "id";
     private View view;
     private Context context;
-
-    //List of data
-    ArrayList<HashMap<String, Object>> listObjects = null;
+    private ArrayList<HashMap<String, Object>> listObjects = null;
     private ListView listView;
-    List<VehicleData>vehicleDataList = null;
+    List<AlertData>alertDataList = null;
+    VehicleData vehicleData = null;
+    ProgressBar progressBar = null;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
-        Log.i("info"," CREATE: FragmentHome");
-        view = layoutInflater.inflate(R.layout.fragment_home, container, false);
-        context = getActivity();
-        listView = (ListView)view.findViewById(R.id.listView);
+        view = layoutInflater.inflate(R.layout.fragment_vehicle_alarm, container, false);
+        progressBar = (ProgressBar)view.findViewById(R.id.loading_spinner);
         return view;
     }
-
     @Override
     public void onResume() {
         super.onResume();
-        Log.i("info"," RESUME: FragmentHome");
-        if(listObjects != null){
-            SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
-                    new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
-                    new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
-            listView.setAdapter(adapter);
-            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        }else {
-            listView = (ListView)view.findViewById(R.id.listView);
-            listView.setDivider(null);
-            listView.setDividerHeight(5);
-            new getVehiclesTask().execute();
-        }
-        listView.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int item, long l) {
-                Log.i("info"," list item : " + Integer.toString(item));
-                VehicleData data = vehicleDataList.get(item);
-                Log.i("info"," vin    : " + data.vin);
-                Log.i("info"," gps id : " + data.gps_id);
-
-                Intent intent = new Intent(context,VehicleDetail.class);
-                intent.putExtra(VehicleData.VIN, data.vin);
-                intent.putExtra(VehicleData.GPS_ID, data.gps_id);
-                intent.putExtra(VehicleData.USER_ID, data.user_id);
-                intent.putExtra(VehicleData.FIRST_NAME, data.first_name);
-                intent.putExtra(VehicleData.LAST_NAME, data.last_name);
-                intent.putExtra(VehicleData.MAKE, data.make);
-                intent.putExtra(VehicleData.MODEL, data.model);
-                intent.putExtra(VehicleData.STOCK_NUMBER, data.stock_number);
-                intent.putExtra(VehicleData.YEAR, data.year);
-                intent.putExtra(VehicleData.STATUS, data.status);
-
-                startActivity(intent);
-            }
-        });
+        listView = (ListView)view.findViewById(R.id.listView);
+        vehicleData = ((VehicleDetail)getActivity()).vehicleData;
+        new getAlertDataListTask().execute();
     }
 
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/
-    class getVehiclesTask extends AsyncTask<Void, Void, String> {
+    class getAlertDataListTask extends AsyncTask<Void, Void, String> {
         private String resultString = null;
         @Override
-        protected String doInBackground(Void... voids) {
-            Log.i("info"," START: getVehiclesTask");
+        protected String doInBackground(Void... params) {
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
             HttpConnectionParams.setSoTimeout(httpParams, 25000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
-            HttpPost httpPost = new HttpPost(URL.getVehiclesUrl);
+            HttpPost httpPost = new HttpPost(URL.getAlertListUrl);
 
-            List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(1);
-            nameValuePairList.add(new BasicNameValuePair("user_id", new Settings(context).getUserId()));
+            List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(2);
+            nameValuePairList.add(new BasicNameValuePair("user_id", vehicleData.user_id));
+            nameValuePairList.add(new BasicNameValuePair("gps_id", vehicleData.gps_id));
 
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairList));
@@ -146,7 +102,6 @@ public class FragmentHome extends Fragment {
         }
         @Override
         protected void onPostExecute(String result) {
-            Log.i("info"," END: getVehiclesTask");
             if(result == null) {
                 if(((MainActivity)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
                     result = "Error connection";
@@ -165,31 +120,25 @@ public class FragmentHome extends Fragment {
                 }
                 return;
             }
-
             listObjects = new ArrayList<HashMap<String, Object>>();
-            vehicleDataList = new ParceVehicles(context).parceXml(result);
-            MainActivity activity = (MainActivity)getActivity();
-            activity.vehicleDataListGlobal = vehicleDataList;
-
-            for(int i = 0; i<vehicleDataList.size(); i++) {
-                VehicleData data = vehicleDataList.get(i);
+            alertDataList = new ParseAlertList().parceXml(result);
+            for(int i = 0; i<alertDataList.size(); i++) {
+                AlertData data = alertDataList.get(i);
                 HashMap<String, Object>item = new HashMap<String, Object>();
                 item.put(ID,Integer.toString(i+1));
-                item.put(NAME, data.first_name + " " + data.last_name + " :" + data.vin);
-                item.put(GPS_ID, data.gps_id);
-                item.put(STOCK_NUMBER, data.stock_number);
-                if(data.status == 1) {
-                    item.put(ICON, R.drawable.car);
-                } else {
-                    item.put(ICON, R.drawable.car_na);
-                }
+                item.put(AlertData.GPS_ID, data.gps_id);
+                item.put(AlertData.ALERT_ID, data.alert_id);
+                item.put(AlertData.USER_ID, data.user_id);
+                item.put(AlertData.ALERT_TIME, data.alert_time);
+                item.put(AlertData.ALERT_TYPE, data.alert_type);
+                item.put(AlertData.ALERT_MESSAGE, data.alert_message);
                 listObjects.add(item);
             }
-            if(((MainActivity)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+            if(((VehicleDetail)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
                 if (listView.getAdapter() == null) {
                     SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
-                            new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
-                            new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
+                            new String[]{AlertData.GPS_ID, AlertData.ALERT_ID, AlertData.ALERT_TIME, AlertData.ALERT_TYPE},
+                            new int[]{R.id.textView5, R.id.textView6, R.id.textView7, R.id.textView8});
                     listView.setAdapter(adapter);
                     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                 }else {
@@ -197,6 +146,7 @@ public class FragmentHome extends Fragment {
                     adapter.notifyDataSetChanged();
                 }
             }
+            progressBar.setVisibility(View.GONE);
         }
     }
 }

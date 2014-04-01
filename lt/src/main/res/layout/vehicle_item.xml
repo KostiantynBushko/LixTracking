@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:text="0."
         android:id="@+id/u_id"
-        android:textColor="@color/dark_gray"
+        android:textColor="#ff98b3ea"
         android:textSize="15dip"
         android:textStyle="bold"
         android:typeface="sans"
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Rihanna Love the way lie"
-        android:textColor="#040404"
+        android:textColor="@color/dark_gray"
         android:textSize="15dip"
         android:textStyle="bold"
         android:typeface="sans"
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:text="text2"
         android:id="@+id/text2"
-        android:textColor="@color/dark_gray"
+        android:textColor="@color/light_gray"
         android:layout_below="@+id/text1"
         android:layout_alignRight="@+id/text1"
         android:layout_alignEnd="@+id/text1"
@@ -67,20 +67,20 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="test3"
         android:id="@+id/text3"
-        android:textColor="@color/dark_gray"
+        android:textColor="@color/light_gray"
         android:layout_below="@+id/text2"
         android:layout_alignLeft="@+id/text2"
         android:layout_alignStart="@+id/text2"
         android:layout_alignRight="@+id/text2"
         android:layout_alignEnd="@+id/text2"/>
 
-    <ImageButton
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageButton"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_action_collapse_right"/>
+        android:src="@drawable/ic_action_collapse_right"/>
 
 </RelativeLayout>

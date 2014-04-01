@@ -1,5 +1,6 @@
 package com.lixtracking.lt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -7,93 +8,83 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
 
-import com.lixtracking.lt.fragment.FragmentAlarm;
-import com.lixtracking.lt.fragment.FragmentHome;
-import com.lixtracking.lt.fragment.FragmentMap;
-import com.lixtracking.lt.fragment.FragmentMore;
+import com.lixtracking.lt.fragment.FragmentHistory;
+import com.lixtracking.lt.fragment.FragmentTracking;
+import com.lixtracking.lt.fragment.FragmentVehicleAlarm;
 import com.lixtracking.lt.parsers.VehicleData;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Stack;
 
-
-public class MainActivity extends FragmentActivity {
+/**
+ * Created by saiber on 01.04.2014.
+ */
+public class VehicleDetail extends FragmentActivity {
     private TabHost mTabHost;
     private HashMap<String, Stack<Fragment>> fragmentStack;
     private String currentTab;
-    public List<VehicleData> vehicleDataListGlobal = null;
-
     public static FragmentManager fragmentManager;
 
-    public static final String TAB_HOME   = "tab_home";
-    public static final String TAB_MAP    = "tab_map";
+    public static final String TAB_HISTORY    = "tab_history";
     public static final String TAB_ALARM  = "tab_alarm";
-    public static final String TAB_MORE   = "tab_more";
+    public static final String TAB_TRACK   = "tab_tracking";
 
-    private boolean isLoaded = false;
+    public VehicleData vehicleData = new VehicleData();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fragmentManager = getSupportFragmentManager();
+        overridePendingTransition(R.anim.in,R.anim.out);
 
+        Intent intent = getIntent();
+        vehicleData.vin = intent.getStringExtra(VehicleData.VIN);
+        vehicleData.gps_id = intent.getStringExtra(VehicleData.GPS_ID);
+        vehicleData.user_id = intent.getStringExtra(VehicleData.USER_ID);
+        vehicleData.first_name = intent.getStringExtra(VehicleData.FIRST_NAME);
+        vehicleData.last_name = intent.getStringExtra(VehicleData.LAST_NAME);
+        vehicleData.stock_number = intent.getStringExtra(VehicleData.STOCK_NUMBER);
+        vehicleData.model = intent.getStringExtra(VehicleData.MODEL);
+        vehicleData.make = intent.getStringExtra(VehicleData.MAKE);
+        vehicleData.year = intent.getIntExtra(VehicleData.YEAR, 0);
+        vehicleData.status = intent.getIntExtra(VehicleData.STATUS, 0);
+
+        fragmentManager = getSupportFragmentManager();
         fragmentStack = new HashMap<String, Stack<Fragment>>();
-        fragmentStack.put(TAB_HOME, new Stack<Fragment>());
-        fragmentStack.put(TAB_MAP, new Stack<Fragment>());
+        fragmentStack.put(TAB_TRACK, new Stack<Fragment>());
+        fragmentStack.put(TAB_HISTORY, new Stack<Fragment>());
         fragmentStack.put(TAB_ALARM, new Stack<Fragment>());
-        fragmentStack.put(TAB_MORE, new Stack<Fragment>());
 
         mTabHost = (TabHost)findViewById(android.R.id.tabhost);
         mTabHost.setOnTabChangedListener(tabChangeListener);
         mTabHost.setup();
         InitializeTabButton();
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(isLoaded) {
-            overridePendingTransition(R.anim.in_a,R.anim.out_a);
-        }
-        isLoaded = true;
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
     /**********************************************************************************************/
     /* Initialise tab button */
     /**********************************************************************************************/
     private void InitializeTabButton() {
-        TabHost.TabSpec spec = mTabHost.newTabSpec(TAB_HOME);
+        TabHost.TabSpec spec = mTabHost.newTabSpec(TAB_TRACK);
         mTabHost.setCurrentTab(-3);
         spec.setContent(new TabHost.TabContentFactory() {
             public View createTabContent(String tag) {
                 return findViewById(R.id.realtabcontent);
             }
         });
-        spec.setIndicator(createTabView(R.drawable.tab_a_state_btn));
+        spec.setIndicator(createTabView(R.drawable.tab_e_state_btn));
         mTabHost.addTab(spec);
 
-        spec = mTabHost.newTabSpec(TAB_MAP);
+        spec = mTabHost.newTabSpec(TAB_HISTORY);
         spec.setContent(new TabHost.TabContentFactory() {
             public View createTabContent(String tag) {
                 return findViewById(R.id.realtabcontent);
             }
         });
-        spec.setIndicator(createTabView(R.drawable.tab_b_state_btn));
+        spec.setIndicator(createTabView(R.drawable.tab_f_state_btn));
         mTabHost.addTab(spec);
 
         spec = mTabHost.newTabSpec(TAB_ALARM);
@@ -104,15 +95,6 @@ public class MainActivity extends FragmentActivity {
         });
         spec.setIndicator(createTabView(R.drawable.tab_c_state_btn));
         mTabHost.addTab(spec);
-
-        spec = mTabHost.newTabSpec(TAB_MORE);
-        spec.setContent(new TabHost.TabContentFactory() {
-            public View createTabContent(String tag) {
-                return findViewById(R.id.realtabcontent);
-            }
-        });
-        spec.setIndicator(createTabView(R.drawable.tab_d_state_btn));
-        mTabHost.addTab(spec);
     }
     /**********************************************************************************************/
     /**/
@@ -120,18 +102,15 @@ public class MainActivity extends FragmentActivity {
     TabHost.OnTabChangeListener tabChangeListener = new TabHost.OnTabChangeListener(){
         @Override
         public void onTabChanged(String tabId) {
-            Log.i("info"," TAB : " + tabId);
+            Log.i("info", " TAB : " + tabId);
             currentTab = tabId;
-
             if(fragmentStack.get(tabId).size() == 0) {
-                if(tabId.equals(TAB_HOME)) {
-                    pushFragments(tabId, new FragmentHome(),true);
-                }else if(tabId.equals(TAB_MAP)) {
-                    pushFragments(tabId, new FragmentMap(),true);
+                if(tabId.equals(TAB_TRACK)) {
+                    pushFragments(tabId, new FragmentTracking(),true);
+                }else if(tabId.equals(TAB_HISTORY)) {
+                    pushFragments(tabId, new FragmentHistory(),true);
                 }else if(tabId.equals(TAB_ALARM)){
-                    pushFragments(tabId, new FragmentAlarm(), true);
-                }else if(tabId.equals(TAB_MORE)){
-                    pushFragments(tabId, new FragmentMore(), true);
+                    pushFragments(tabId, new FragmentVehicleAlarm(), true);
                 }
             }else {
                 pushFragments(tabId, fragmentStack.get(tabId).lastElement(), false);
@@ -165,9 +144,6 @@ public class MainActivity extends FragmentActivity {
         FragmentTransaction ft = manager.beginTransaction();
         ft.replace(R.id.realtabcontent, fragment);
         ft.commit();
-    }
-    public List<VehicleData> getVehicle() {
-        return vehicleDataListGlobal;
     }
     public String getCurrentFragmentTag() {
         return currentTab;

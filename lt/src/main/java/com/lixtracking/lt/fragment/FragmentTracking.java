@@ -1,9 +1,5 @@
 package com.lixtracking.lt.fragment;
 
-/**
- * Created by saiber on 26.03.2014.
- */
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,8 +21,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
+import com.lixtracking.lt.VehicleDetail;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.parsers.GpsData;
 import com.lixtracking.lt.parsers.ParseGpsData;
@@ -49,18 +45,26 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClickListener{
+/**
+ * Created by saiber on 01.04.2014.
+ */
+public class FragmentTracking extends Fragment {
+    private static final String TID = "tid";
     private GoogleMap map = null;
     View view = null;
     private MapView mapView;
-    List<VehicleData> vehicleDatas = null;
+    VehicleData vehicleData = null;
     List<GpsData> gpsDatas = null;
     GpsData firstActive = null;
     List<Marker>markerList = new ArrayList<Marker>();
+    Timer timer;
 
     private boolean updateIsRunning = false;
     Context context = null;
+    Marker marker;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
@@ -71,14 +75,14 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
         try {
             view = layoutInflater.inflate(R.layout.fragment_map, container, false);
+            context = getActivity();
             //Setup google here
             if (map == null) {
                 // Try to obtain the map from the SupportMapFragment.
-                map = ((SupportMapFragment) MainActivity.fragmentManager
+                map = ((SupportMapFragment) VehicleDetail.fragmentManager
                         .findFragmentById(R.id.map)).getMap();
                 if(map != null) {
                     map.setMapType(1);
-                    map.setOnInfoWindowClickListener(this);
                     map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
@@ -98,68 +102,55 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         } catch (InflateException e) {
             /* map is already there, just return view as it is */
         }
-        context = getActivity();
         return view;
     }
+
     @Override
     public void onResume() {
-        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
+        vehicleData = ((VehicleDetail)getActivity()).vehicleData;
         super.onResume();
-        if(!updateIsRunning){
-            new Thread(new Runnable() {
-                int count = vehicleDatas.size();
-                @Override
-                public void run() {
-                    while (vehicleDatas == null){
-                        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
-                    }
-                    int coun = vehicleDatas.size();
-                    int i = 0;
-                    /*while (updateDataList() == false) {
-                        Log.i("info"," get next");
-                        SystemClock.sleep(500);
-                    }*/
-                    while (i < coun) {
-                        if (updateIsRunning == false) {
-                            new getRealTimeGpsData().execute(vehicleDatas.get(i).gps_id, Integer.toString(i));
-                            i++;
-                        }
+        /*new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TID," Start thread");
+                while (true) {
+                    new getRealTimeGpsData().execute(((VehicleDetail)getActivity()).vehicleData.gps_id);
+                    while (updateIsRunning == true){
+                        SystemClock.sleep(1000);
                     }
                 }
-            }).start();
+            }
+        }).start();*/
+        timer = new Timer();
+        TimerTask timerTask = new Task();
+        timer.scheduleAtFixedRate(timerTask, 1, 5000);
+    }
+    class Task extends TimerTask {
+        @Override
+        public void run() {
+            if(updateIsRunning == false){
+                if(vehicleData != null)
+                    new getRealTimeGpsData().execute(((VehicleDetail)getActivity()).vehicleData.gps_id);
+            }
         }
-
     }
-    private boolean updateDataList () {
-        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
-        if(vehicleDatas == null)
-            return false;
-        for(int i = 0; i<vehicleDatas.size(); i++) {
-            new getRealTimeGpsData().execute(vehicleDatas.get(i).gps_id, Integer.toString(i));
-        }
-        return true;
-    }
-    private void updateMarker() {
-
-    }
-    /**********************************************************************************************/
-    /**/
-    /**********************************************************************************************/
     @Override
-    public void onInfoWindowClick(Marker marker) {
-
+    public void onPause() {
+        super.onPause();
+        timer.cancel();
     }
+
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/
     class getRealTimeGpsData extends AsyncTask<String, Void, String> {
         private String resultString = "...";
         private String message = "";
-        private String index = "";
+        //private String index = "";
         @Override
         protected String doInBackground(String... params) {
             updateIsRunning = true;
-            index = params[1];
+            //index = params[1];
             Log.i("info", " START: getVehiclesTask");
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
@@ -169,6 +160,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             HttpPost httpPost = new HttpPost(URL.getRealTimeGpsDataUrl);
 
             List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(1);
+            Log.i("info"," terminal_id = " + params[0]);
             nameValuePairList.add(new BasicNameValuePair("terminal_id", params[0]));
 
             try {
@@ -190,7 +182,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         protected void onPostExecute(String result) {
             if(resultString == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Mesage: " + index);
+                //builder.setTitle("Mesage: " + index);
                 builder.setMessage(message);
                 builder.setCancelable(true);
                 builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
@@ -202,19 +194,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }else {
-                /*Log.i("info","--------------------------------------------------------------------");
+                Log.i("info","--------------------------------------------------------------------");
                 Log.i("info","result : " + resultString);
                 Log.i("info","--------------------------------------------------------------------");
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Mesage: " + index);
-                builder.setMessage(resultString);
-                builder.setCancelable(true);
-                builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });*/
                 List<GpsData> tmpData = new ParseGpsData(context).parceXml(resultString);
                 if(gpsDatas == null)
                     gpsDatas = new ArrayList<GpsData>();
@@ -222,6 +204,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                     gpsDatas.addAll(tmpData);
 
                 if(map != null) {
+                    if((marker != null)) {
+                        map.clear();
+                    }
                     for(int i = 0; i<tmpData.size(); i++) {
                         float lat = Float.parseFloat(tmpData.get(i).lat);
                         float lng = Float.parseFloat(tmpData.get(i).lng);
@@ -229,21 +214,18 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         if((lng != 0) && (lng != 0)) {
                             LatLng latLon = new LatLng(lat,lng);
                             int r = R.drawable.car_na_32x32;
-                            if(vehicleDatas.get(Integer.parseInt(index)).status == 1) {
+                            if(vehicleData.status == 1) {
                                 r = R.drawable.car_32x32;
                             }
-                            Marker marker = map.addMarker(new MarkerOptions()
+                            marker = map.addMarker(new MarkerOptions()
                                             .position(latLon)
                                             .title(" GPS ID : " + tmpData.get(i).gps_id)
                                             .icon(BitmapDescriptorFactory.fromResource(r))
                                             .snippet("speed : " + tmpData.get(i).speed)
                             );
-                            markerList.add(marker);
-                            if(firstActive == null) {
-                                firstActive = tmpData.get(i);
+                            //markerList.add(marker);
+                            if(marker.isInfoWindowShown() == false)
                                 map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
-                                marker.showInfoWindow();
-                            }
                         }
                     }
                 }
@@ -251,5 +233,4 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             updateIsRunning = false;
         }
     }
-
 }

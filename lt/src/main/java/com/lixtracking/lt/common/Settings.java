@@ -36,9 +36,11 @@ public class Settings {
     public String getUserPassword() {
         return settings.getString(USER_PASSWORD, "");
     }
+
     public boolean isUserSaved() {
         return settings.getBoolean(SAVE_LOGIN, false);
     }
+
     public void setUserSession(boolean state) {
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(SAVE_LOGIN, state);
