@@ -22,7 +22,7 @@ import com.lixtracking.lt.VehicleDetail;
 import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.parsers.ParceVehicles;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

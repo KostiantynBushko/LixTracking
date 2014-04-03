@@ -24,9 +24,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.VehicleDetail;
 import com.lixtracking.lt.common.URL;
-import com.lixtracking.lt.parsers.GpsData;
+import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.parsers.ParseGpsData;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -137,6 +137,7 @@ public class FragmentTracking extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        Log.i("info"," ----------------------------------STOP TIMER --------------------------- ");
         timer.cancel();
     }
 

@@ -28,9 +28,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.common.URL;
-import com.lixtracking.lt.parsers.GpsData;
+import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.parsers.ParseGpsData;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -242,7 +242,8 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             if(firstActive == null) {
                                 firstActive = tmpData.get(i);
                                 map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
-                                marker.showInfoWindow();
+                                if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_MAP)
+                                    marker.showInfoWindow();
                             }
                         }
                     }

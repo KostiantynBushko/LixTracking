@@ -1,4 +1,4 @@
-package com.lixtracking.lt.parsers;
+package com.lixtracking.lt.data_class;
 
 /**
  * Created by saiber on 01.04.2014.

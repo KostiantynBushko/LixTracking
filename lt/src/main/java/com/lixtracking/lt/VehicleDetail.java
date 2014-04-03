@@ -15,7 +15,7 @@ import android.widget.TabHost;
 import com.lixtracking.lt.fragment.FragmentHistory;
 import com.lixtracking.lt.fragment.FragmentTracking;
 import com.lixtracking.lt.fragment.FragmentVehicleAlarm;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import java.util.HashMap;
 import java.util.Stack;

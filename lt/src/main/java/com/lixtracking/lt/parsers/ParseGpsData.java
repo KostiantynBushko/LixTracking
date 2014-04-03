@@ -2,6 +2,8 @@ package com.lixtracking.lt.parsers;
 
 import android.content.Context;
 
+import com.lixtracking.lt.data_class.GpsData;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;

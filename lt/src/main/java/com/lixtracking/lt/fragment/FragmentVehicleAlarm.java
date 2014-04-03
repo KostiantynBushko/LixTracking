@@ -18,9 +18,9 @@ import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.VehicleDetail;
 import com.lixtracking.lt.common.URL;
-import com.lixtracking.lt.parsers.AlertData;
+import com.lixtracking.lt.data_class.AlertData;
 import com.lixtracking.lt.parsers.ParseAlertList;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

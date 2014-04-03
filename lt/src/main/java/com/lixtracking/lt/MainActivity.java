@@ -17,7 +17,7 @@ import com.lixtracking.lt.fragment.FragmentAlarm;
 import com.lixtracking.lt.fragment.FragmentHome;
 import com.lixtracking.lt.fragment.FragmentMap;
 import com.lixtracking.lt.fragment.FragmentMore;
-import com.lixtracking.lt.parsers.VehicleData;
+import com.lixtracking.lt.data_class.VehicleData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Stack;
 public class MainActivity extends FragmentActivity {
     private TabHost mTabHost;
     private HashMap<String, Stack<Fragment>> fragmentStack;
-    private String currentTab;
+    private static String currentTab;
     public List<VehicleData> vehicleDataListGlobal = null;
 
     public static FragmentManager fragmentManager;
@@ -169,7 +169,7 @@ public class MainActivity extends FragmentActivity {
     public List<VehicleData> getVehicle() {
         return vehicleDataListGlobal;
     }
-    public String getCurrentFragmentTag() {
+    public static String getCurrentFragmentTag() {
         return currentTab;
     }
 }

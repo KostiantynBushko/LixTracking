@@ -1,5 +1,7 @@
 package com.lixtracking.lt.parsers;
 
+import com.lixtracking.lt.data_class.AlertData;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
