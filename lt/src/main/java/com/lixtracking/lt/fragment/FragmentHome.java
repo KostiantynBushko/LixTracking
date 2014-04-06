@@ -82,7 +82,6 @@ public class FragmentHome extends Fragment {
         listView = (ListView)view.findViewById(R.id.listView);
         return view;
     }
-
     @Override
     public void onResume() {
         super.onResume();

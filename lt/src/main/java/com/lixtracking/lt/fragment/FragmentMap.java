@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClickListener{
     private static final String PREF_MAP_TYPE = "pref_map_type";
@@ -68,6 +69,8 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
 
     private boolean updateIsRunning = false;
     Context context = null;
+
+    private int currentIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +96,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 if(map != null) {
                     map.setMapType(map_type);
                     map.setOnInfoWindowClickListener(this);
-                    map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    /*map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
                             return null;
@@ -106,7 +109,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
                             return view;
                         }
-                    });
+                    });*/
                 }
             }
         } catch (InflateException e) {
@@ -127,7 +130,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 @Override
                 public void run() {
                     while (vehicleDatas == null){
-                        //vehicleDatas = ((MainActivity)getActivity()).getVehicle();
+                        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
                     }
                     int coun = vehicleDatas.size();
                     int i = 0;
@@ -139,6 +142,13 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                     }
                 }
             }).start();
+        }
+    }
+    class UpdateTik extends TimerTask {
+        public boolean run = true;
+        @Override
+        public void run() {
+
         }
     }
     /**********************************************************************************************/
@@ -181,7 +191,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     /**********************************************************************************************/
     @Override
     public void onInfoWindowClick(Marker marker) {
-
+        Log.i("info"," GPS ID :" + marker.getTitle());
     }
     /**********************************************************************************************/
     /**/
@@ -225,7 +235,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             Log.i("info"," END: getRealTimeGpsData");
             if(resultString == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Mesage: " + index);
+                builder.setTitle("Message: " + index);
                 builder.setMessage(message);
                 builder.setCancelable(true);
                 builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
@@ -237,19 +247,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }else {
-                /*Log.i("info","--------------------------------------------------------------------");
-                Log.i("info","result : " + resultString);
-                Log.i("info","--------------------------------------------------------------------");
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Mesage: " + index);
-                builder.setMessage(resultString);
-                builder.setCancelable(true);
-                builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });*/
                 List<GpsData> tmpData = new ParseGpsData(context).parceXml(resultString);
                 if(gpsDatas == null)
                     gpsDatas = new ArrayList<GpsData>();
@@ -263,9 +260,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
 
                         if((lng != 0) && (lng != 0)) {
                             LatLng latLon = new LatLng(lat,lng);
-                            int r = R.drawable.car_na_32x32;
+                            int r = R.drawable.marker_car_gray;
                             if(vehicleDatas.get(Integer.parseInt(index)).status == 1) {
-                                r = R.drawable.car_32x32;
+                                r = R.drawable.marker_car;
                             }
                             Marker marker = map.addMarker(new MarkerOptions()
                                             .position(latLon)
@@ -288,4 +285,23 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
     }
 
+    /**********************************************************************************************/
+    class PopupAdapter implements GoogleMap.InfoWindowAdapter {
+        LayoutInflater inflater=null;
+        PopupAdapter(LayoutInflater inflater) {
+            this.inflater=inflater;
+        }
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return(null);
+        }
+        @Override
+        public View getInfoContents(Marker marker) {
+            View view = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
+            TextView title = ((TextView)view.findViewById(R.id.textView));
+            title.setText(marker.getTitle());
+            ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
+            return view;
+        }
+    }
 }

@@ -222,7 +222,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                     play.setImageResource(R.drawable.pause_button_selector);
                     next.setVisibility(View.INVISIBLE);
                     previous.setVisibility(View.INVISIBLE);
-                    currentIndex = 1;
+                    //currentIndex = 1;
                     map.clear();
                     polylineOptions = new PolylineOptions();
                     polylineOptions.color(Color.argb(lineAlpha,50,50, 255));
@@ -265,7 +265,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                     map.clear();
                     polylineOptions = new PolylineOptions();
                     polylineOptions.color(Color.argb(lineAlpha,50,50, 255));
-                    for (int i = 1; i<currentIndex; i++) {
+                    for (int i = 0; i<currentIndex; i++) {
                         polylineOptions.add(gpsPoints.get(i)).color(Color.argb(lineAlpha,50,50, 255));
                     }
                     map.addPolyline(polylineOptions);
@@ -275,14 +275,17 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                             .title(" Start")
                             .snippet("Lat " + Double.toString(firstPoint.latitude) + " Lng : " + Double.toString(firstPoint.longitude)));
                     map.addPolyline(polylineOptions);
+
                     currentMarker = map.addMarker(new MarkerOptions()
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_stop))
-                            .position(gpsPoints.get(currentIndex - 1))
+                            .position(gpsPoints.get(currentIndex-1 /*- 1*/))
                             .title(" Finish")
-                            .snippet("Lat " + Double.toString(gpsPoints.get(currentIndex).latitude)
-                                    + " Lng : " + Double.toString(gpsPoints.get(currentIndex).latitude)));
-                    map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1)));
+                            .snippet("Lat " + Double.toString(gpsPoints.get(currentIndex-1).latitude)
+                                    + " Lng : " + Double.toString(gpsPoints.get(currentIndex-1).latitude)));
+
+                    map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1/*-1*/)));
                     updateTrackingView();
+                    //currentIndex--;
                 }
                 break;
         }
@@ -431,6 +434,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                             /*currentMarker.setPosition(gpsPoints.get(currentIndex-1));
                             currentMarker.setSnippet("Lat " + Double.toString(gpsPoints.get(currentIndex-1).latitude)
                                     + " Lng : " + Double.toString(gpsPoints.get(currentIndex-1).longitude));*/
+                            //currentIndex++;
                         }
                     });
                     currentIndex++;
@@ -445,7 +449,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                             next.setVisibility(View.VISIBLE);
                             previous.setVisibility(View.VISIBLE);
                             playStatus = 2;
-                            currentMarker.setPosition(gpsPoints.get(currentIndex-1));
+                            currentMarker.setPosition(gpsPoints.get(currentIndex-1/*-1*/));
                             currentMarker.setSnippet("Lat " + Double.toString(firstPoint.latitude)
                                     + " Lng : " + Double.toString(firstPoint.longitude));
                         }
@@ -474,10 +478,10 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
         if(gpsDatas == null || gpsDatas.isEmpty())
             return;
         Log.i("info"," Update gps view");
-        textDateTime.setText(gpsDatas.get(currentIndex).gps_time);
-        textLatitude.setText(gpsDatas.get(currentIndex).lat);
-        textLongitude.setText(gpsDatas.get(currentIndex).lng);
-        textSpeed.setText(Float.toString(gpsDatas.get(currentIndex).speed));
+        textDateTime.setText(gpsDatas.get(currentIndex-1).gps_time);
+        textLatitude.setText(gpsDatas.get(currentIndex-1).lat);
+        textLongitude.setText(gpsDatas.get(currentIndex-1).lng);
+        textSpeed.setText(Float.toString(gpsDatas.get(currentIndex-1).speed));
     }
     private void showTrackingView(int visible) {
         trackingView.setVisibility(visible);

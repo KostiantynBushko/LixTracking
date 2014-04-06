@@ -69,7 +69,7 @@ public class FragmentTracking extends Fragment {
 
     private boolean updateIsRunning = false;
     Context context = null;
-    Marker marker;
+    Marker marker = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,7 +95,7 @@ public class FragmentTracking extends Fragment {
                         .findFragmentById(R.id.map)).getMap();
                 if(map != null) {
                     map.setMapType(map_type);
-                    map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    /*map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
                             return null;
@@ -108,7 +108,7 @@ public class FragmentTracking extends Fragment {
                             ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
                             return view;
                         }
-                    });
+                    });*/
                 }
             }
         } catch (InflateException e) {
@@ -124,7 +124,7 @@ public class FragmentTracking extends Fragment {
         super.onResume();
         timer = new Timer();
         TimerTask timerTask = new Task();
-        timer.scheduleAtFixedRate(timerTask, 1, 5000);
+        timer.scheduleAtFixedRate(timerTask, 1, 2500);
     }
     class Task extends TimerTask {
         @Override
@@ -139,6 +139,7 @@ public class FragmentTracking extends Fragment {
     public void onPause() {
         super.onPause();
         timer.cancel();
+        timer = null;
     }
     /**********************************************************************************************/
     /* MENU */
@@ -204,7 +205,6 @@ public class FragmentTracking extends Fragment {
         protected void onPostExecute(String result) {
             if(resultString == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                //builder.setTitle("Mesage: " + index);
                 builder.setMessage(message);
                 builder.setCancelable(true);
                 builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
@@ -219,40 +219,60 @@ public class FragmentTracking extends Fragment {
                 Log.i("info","--------------------------------------------------------------------");
                 Log.i("info","result : " + resultString);
                 Log.i("info","--------------------------------------------------------------------");
-                List<GpsData> tmpData = new ParseGpsData(context).parceXml(resultString);
-                if(gpsDatas == null)
-                    gpsDatas = new ArrayList<GpsData>();
-                if(tmpData != null)
-                    gpsDatas.addAll(tmpData);
+                List<GpsData> tmpDatas = new ParseGpsData(context).parceXml(resultString);
+                if((tmpDatas != null) && (!tmpDatas.isEmpty()))
+                    gpsDatas = tmpDatas;
 
                 if(map != null) {
-                    if((marker != null)) {
-                        map.clear();
-                    }
-                    for(int i = 0; i<tmpData.size(); i++) {
-                        float lat = Float.parseFloat(tmpData.get(i).lat);
-                        float lng = Float.parseFloat(tmpData.get(i).lng);
+                    float lat = Float.parseFloat(gpsDatas.get(0).lat);
+                    float lng = Float.parseFloat(gpsDatas.get(0).lng);
+                    LatLng latLon = new LatLng(lat,lng);
 
-                        if((lng != 0) && (lng != 0)) {
-                            LatLng latLon = new LatLng(lat,lng);
-                            int r = R.drawable.car_na_32x32;
-                            if(vehicleData.status == 1) {
-                                r = R.drawable.car_32x32;
-                            }
-                            marker = map.addMarker(new MarkerOptions()
-                                            .position(latLon)
-                                            .title(" GPS ID : " + tmpData.get(i).gps_id)
-                                            .icon(BitmapDescriptorFactory.fromResource(r))
-                                            .snippet("speed : " + tmpData.get(i).speed)
-                            );
-                            //markerList.add(marker);
-                            if(marker.isInfoWindowShown() == false)
-                                map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
+                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
+
+                    int r = R.drawable.marker_car_gray;
+                    if(vehicleData.status == 1) {
+                        r = R.drawable.marker_car;
+                    }
+                    if(marker == null) {
+                        marker = map.addMarker(new MarkerOptions()
+                                        .position(latLon)
+                                        .title(" GPS ID : " + gpsDatas.get(0).gps_id)
+                                        .icon(BitmapDescriptorFactory.fromResource(r))
+                                        .snippet("speed : " + gpsDatas.get(0).speed)
+                        );
+                    } else {
+                        marker.setPosition(latLon);
+                        marker.setTitle(" GPS ID : " + gpsDatas.get(0).gps_id);
+                        marker.setSnippet("speed : " + gpsDatas.get(0).speed);
+                        marker.setIcon(BitmapDescriptorFactory.fromResource(r));
+                        if(marker.isInfoWindowShown()){
+                            marker.showInfoWindow();
                         }
                     }
+                    //map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
                 }
             }
             updateIsRunning = false;
+        }
+    }
+    /**********************************************************************************************/
+    class PopupAdapter implements GoogleMap.InfoWindowAdapter {
+        LayoutInflater inflater=null;
+        PopupAdapter(LayoutInflater inflater) {
+            this.inflater=inflater;
+        }
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return(null);
+        }
+        @Override
+        public View getInfoContents(Marker marker) {
+            View view = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
+            TextView title = ((TextView)view.findViewById(R.id.textView));
+            title.setText(marker.getTitle());
+            ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
+            return view;
         }
     }
 }
