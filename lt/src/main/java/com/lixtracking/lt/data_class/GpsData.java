@@ -26,25 +26,4 @@ public class GpsData {
     public int west_lon = 0;
     public float speed = 0.0f;
     public float direction = 0.0f;
-
-    /*<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-    <getRealTimeGpsDataResponse xmlns="http://lixtracking.com/webservice/">
-    <getRealTimeGpsDataResult>
-    <msg_id>string</msg_id>
-    <gps_id>string</gps_id>
-    <gps_time>string</gps_time>
-    <gps_status>string</gps_status>
-    <latitude>string</latitude>
-    <longitude>string</longitude>
-    <north_lat>int</north_lat>
-    <west_lon>int</west_lon>
-    <speed>decimal</speed>
-    <direction>decimal</direction>
-    </getRealTimeGpsDataResult>
-    </getRealTimeGpsDataResponse>
-    </soap:Body>
-    </soap:Envelope>*/
 }

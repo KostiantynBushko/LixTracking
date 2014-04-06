@@ -16,7 +16,7 @@ import android.widget.SimpleAdapter;
 
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
-import com.lixtracking.lt.VehicleDetail;
+import com.lixtracking.lt.activities.VehicleDetailActivity;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.AlertData;
 import com.lixtracking.lt.parsers.ParseAlertList;
@@ -64,7 +64,7 @@ public class FragmentVehicleAlarm extends Fragment {
     public void onResume() {
         super.onResume();
         listView = (ListView)view.findViewById(R.id.listView);
-        vehicleData = ((VehicleDetail)getActivity()).vehicleData;
+        vehicleData = ((VehicleDetailActivity)getActivity()).vehicleData;
         new getAlertDataListTask().execute();
     }
 
@@ -134,7 +134,7 @@ public class FragmentVehicleAlarm extends Fragment {
                 item.put(AlertData.ALERT_MESSAGE, data.alert_message);
                 listObjects.add(item);
             }
-            if(((VehicleDetail)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+            if(VehicleDetailActivity.getCurrentFragmentTag() == VehicleDetailActivity.TAB_ALARM) {
                 if (listView.getAdapter() == null) {
                     SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
                             new String[]{AlertData.GPS_ID, AlertData.ALERT_ID, AlertData.ALERT_TIME, AlertData.ALERT_TYPE},

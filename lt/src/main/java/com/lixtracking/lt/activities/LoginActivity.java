@@ -136,14 +136,14 @@ public class LoginActivity extends Activity implements View.OnClickListener{
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(LoginActivity.this,"Is running"," please wait...",true);
+            progressDialog = ProgressDialog.show(LoginActivity.this,"Please wait..."," please wait...",true);
         }
 
         @Override
         protected Boolean doInBackground(String... url) {
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
-            HttpConnectionParams.setSoTimeout(httpParams, 25000);
+            HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+            HttpConnectionParams.setSoTimeout(httpParams, 5000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(url[0]);
@@ -194,6 +194,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 builder.setTitle("Error");
                 builder.setMessage(message);
+                builder.setIcon(R.drawable.ic_action_warning_dark);
                 builder.setCancelable(true);
                 builder.setPositiveButton("cancel",new DialogInterface.OnClickListener() {
                     @Override

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.MapFragment"/>
+
+    <ProgressBar android:id="@+id/loading_spinner"
+        style="?android:progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/trackingView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="43dp"
+        android:background="#FFFFFF"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:alpha="0.5">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="date time"
+            android:id="@+id/textView1"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="3dp"
+            android:layout_toLeftOf="@+id/imageButton" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="latitude"
+            android:id="@+id/textView2"
+            android:layout_below="@+id/textView1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="3dp"
+            android:layout_alignRight="@+id/textView1"
+            android:layout_alignEnd="@+id/textView1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="longitude"
+            android:id="@+id/textView3"
+            android:layout_below="@+id/textView2"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="3dp"
+            android:layout_alignRight="@+id/textView2"
+            android:layout_alignEnd="@+id/textView2" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="speed"
+            android:id="@+id/textView4"
+            android:layout_below="@+id/textView3"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="3dp"
+            android:layout_alignRight="@+id/textView3"
+            android:layout_alignEnd="@+id/textView3" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageButton"
+            android:layout_below="@+id/textView1"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_action_remove_dark"
+            android:layout_marginRight="3dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:alpha="0.8"
+        android:background="@drawable/actionbar_bg">
+        <LinearLayout
+            android:layout_below="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+            <ImageButton
+                android:id="@+id/button_previous"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/previous_button_selector"
+                android:background="@android:color/transparent"/>
+            <ImageButton
+                android:id="@+id/button_play"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/play_button_selector"
+                android:background="@android:color/transparent"/>
+            <ImageButton
+                android:id="@+id/button_next"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/next_button_layout"
+                android:background="@android:color/transparent"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -3,30 +3,33 @@ package com.lixtracking.lt.fragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.R;
-import com.lixtracking.lt.VehicleDetail;
+import com.lixtracking.lt.activities.VehicleDetailActivity;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.GpsData;
-import com.lixtracking.lt.parsers.ParseGpsData;
 import com.lixtracking.lt.data_class.VehicleData;
+import com.lixtracking.lt.parsers.ParseGpsData;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -52,10 +55,12 @@ import java.util.TimerTask;
  * Created by saiber on 01.04.2014.
  */
 public class FragmentTracking extends Fragment {
-    private static final String TID = "tid";
+    private static final String PREF_MAP_TYPE = "pref_map_type";
+    private int map_type = GoogleMap.MAP_TYPE_NORMAL;
+    private SharedPreferences sharedPreferences;
+
     private GoogleMap map = null;
     View view = null;
-    private MapView mapView;
     VehicleData vehicleData = null;
     List<GpsData> gpsDatas = null;
     GpsData firstActive = null;
@@ -67,6 +72,11 @@ public class FragmentTracking extends Fragment {
     Marker marker;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+    @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
         if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
@@ -75,14 +85,16 @@ public class FragmentTracking extends Fragment {
         }
         try {
             view = layoutInflater.inflate(R.layout.fragment_map, container, false);
-            context = getActivity();
+            String s = this.getClass().getSimpleName();
+            sharedPreferences = getActivity().getSharedPreferences(this.getClass().getSimpleName(),Context.MODE_PRIVATE);
+            map_type = sharedPreferences.getInt(PREF_MAP_TYPE, map_type);
             //Setup google here
             if (map == null) {
                 // Try to obtain the map from the SupportMapFragment.
-                map = ((SupportMapFragment) VehicleDetail.fragmentManager
+                map = ((SupportMapFragment) VehicleDetailActivity.fragmentManager
                         .findFragmentById(R.id.map)).getMap();
                 if(map != null) {
-                    map.setMapType(1);
+                    map.setMapType(map_type);
                     map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
@@ -100,27 +112,16 @@ public class FragmentTracking extends Fragment {
                 }
             }
         } catch (InflateException e) {
-            /* map is already there, just return view as it is */
+            e.printStackTrace();
         }
+        context = getActivity();
         return view;
     }
 
     @Override
     public void onResume() {
-        vehicleData = ((VehicleDetail)getActivity()).vehicleData;
+        vehicleData = ((VehicleDetailActivity)getActivity()).vehicleData;
         super.onResume();
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TID," Start thread");
-                while (true) {
-                    new getRealTimeGpsData().execute(((VehicleDetail)getActivity()).vehicleData.gps_id);
-                    while (updateIsRunning == true){
-                        SystemClock.sleep(1000);
-                    }
-                }
-            }
-        }).start();*/
         timer = new Timer();
         TimerTask timerTask = new Task();
         timer.scheduleAtFixedRate(timerTask, 1, 5000);
@@ -130,17 +131,37 @@ public class FragmentTracking extends Fragment {
         public void run() {
             if(updateIsRunning == false){
                 if(vehicleData != null)
-                    new getRealTimeGpsData().execute(((VehicleDetail)getActivity()).vehicleData.gps_id);
+                    new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
             }
         }
     }
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("info"," ----------------------------------STOP TIMER --------------------------- ");
         timer.cancel();
     }
-
+    /**********************************************************************************************/
+    /* MENU */
+    /**********************************************************************************************/
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_map,menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.action_map:
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                sharedPreferences.edit().putInt(PREF_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL).commit();
+                break;
+            case R.id.action_map_satellite:
+                map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                sharedPreferences.edit().putInt(PREF_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID).commit();
+                break;
+        }
+        return true;
+    }
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/

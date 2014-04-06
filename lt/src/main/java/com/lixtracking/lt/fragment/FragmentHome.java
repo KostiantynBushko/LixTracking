@@ -9,20 +9,24 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
-import com.lixtracking.lt.VehicleDetail;
+import com.lixtracking.lt.activities.VehicleDetailActivity;
 import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
-import com.lixtracking.lt.parsers.ParceVehicles;
 import com.lixtracking.lt.data_class.VehicleData;
+import com.lixtracking.lt.parsers.ParceVehicles;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -52,6 +56,7 @@ public class FragmentHome extends Fragment {
     private static final String STOCK_NUMBER = "stok_number";
     private static final String ID  = "id";
     private static final String ICON  = "icon";
+    private ProgressBar progressBar;
 
     private View view;
     private Context context;
@@ -60,11 +65,19 @@ public class FragmentHome extends Fragment {
     ArrayList<HashMap<String, Object>> listObjects = null;
     private ListView listView;
     List<VehicleData>vehicleDataList = null;
+    private static boolean isRunning = false;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
         Log.i("info"," CREATE: FragmentHome");
         view = layoutInflater.inflate(R.layout.fragment_home, container, false);
+        progressBar = (ProgressBar)view.findViewById(R.id.loading_spinner);
+        progressBar.setVisibility(View.INVISIBLE);
         context = getActivity();
         listView = (ListView)view.findViewById(R.id.listView);
         return view;
@@ -95,7 +108,7 @@ public class FragmentHome extends Fragment {
                 Log.i("info"," vin    : " + data.vin);
                 Log.i("info"," gps id : " + data.gps_id);
 
-                Intent intent = new Intent(context,VehicleDetail.class);
+                Intent intent = new Intent(context,VehicleDetailActivity.class);
                 intent.putExtra(VehicleData.VIN, data.vin);
                 intent.putExtra(VehicleData.GPS_ID, data.gps_id);
                 intent.putExtra(VehicleData.USER_ID, data.user_id);
@@ -111,18 +124,44 @@ public class FragmentHome extends Fragment {
             }
         });
     }
-
+    /**********************************************************************************************/
+    /* MENU */
+    /**********************************************************************************************/
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_home,menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                if (!isRunning) {
+                    listView.setAdapter(null);
+                    new getVehiclesTask().execute();
+                }
+                break;
+        }
+        return true;
+    }
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/
     class getVehiclesTask extends AsyncTask<Void, Void, String> {
         private String resultString = null;
         @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        @Override
         protected String doInBackground(Void... voids) {
+            if (isRunning == true)
+                return null;
+            isRunning = true;
             Log.i("info"," START: getVehiclesTask");
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
-            HttpConnectionParams.setSoTimeout(httpParams, 25000);
+            HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
+            HttpConnectionParams.setSoTimeout(httpParams, 10000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(URL.getVehiclesUrl);
@@ -147,12 +186,13 @@ public class FragmentHome extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             Log.i("info"," END: getVehiclesTask");
-            if(result == null) {
+            if(result == null && listObjects == null) {
                 if(((MainActivity)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
                     result = "Error connection";
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Mesage");
+                    builder.setTitle("Error");
                     builder.setMessage(result);
+                    builder.setIcon(R.drawable.ic_action_warning_dark);
                     builder.setCancelable(true);
                     builder.setPositiveButton("cancel", new DialogInterface.OnClickListener() {
                         @Override
@@ -163,9 +203,27 @@ public class FragmentHome extends Fragment {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
+                progressBar.setVisibility(View.INVISIBLE);
+                isRunning = false;
+                return;
+            }else if(result == null && listObjects != null) {
+                Toast toast = Toast.makeText(getActivity().getApplicationContext(), "...connection failure",Toast.LENGTH_SHORT);
+                toast.show();
+                // Update list vehicle
+                if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
+                            new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
+                            new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
+                    listView.setAdapter(adapter);
+                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                }
+                progressBar.setVisibility(View.INVISIBLE);
+                isRunning = false;
                 return;
             }
 
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "...updated successfully",Toast.LENGTH_SHORT);
+            toast.show();
             listObjects = new ArrayList<HashMap<String, Object>>();
             vehicleDataList = new ParceVehicles(context).parceXml(result);
             MainActivity activity = (MainActivity)getActivity();
@@ -185,18 +243,17 @@ public class FragmentHome extends Fragment {
                 }
                 listObjects.add(item);
             }
-            if(((MainActivity)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_HOME) {
-                if (listView.getAdapter() == null) {
-                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
-                            new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
-                            new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
-                    listView.setAdapter(adapter);
-                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                }else {
-                    BaseAdapter adapter = (BaseAdapter)listView.getAdapter();
-                    adapter.notifyDataSetChanged();
-                }
+
+            // Update list vehicle
+            if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+                SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
+                        new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
+                        new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
+                listView.setAdapter(adapter);
+                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
+            progressBar.setVisibility(View.INVISIBLE);
+            isRunning = false;
         }
     }
 }

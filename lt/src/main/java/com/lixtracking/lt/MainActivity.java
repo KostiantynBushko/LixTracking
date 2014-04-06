@@ -7,17 +7,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
 
+import com.lixtracking.lt.data_class.VehicleData;
 import com.lixtracking.lt.fragment.FragmentAlarm;
 import com.lixtracking.lt.fragment.FragmentHome;
 import com.lixtracking.lt.fragment.FragmentMap;
 import com.lixtracking.lt.fragment.FragmentMore;
-import com.lixtracking.lt.data_class.VehicleData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -65,13 +63,13 @@ public class MainActivity extends FragmentActivity {
         }
         isLoaded = true;
     }
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
-    }
+    }*/
 
     /**********************************************************************************************/
     /* Initialise tab button */

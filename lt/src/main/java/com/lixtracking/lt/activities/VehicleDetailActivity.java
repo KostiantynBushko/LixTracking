@@ -1,4 +1,4 @@
-package com.lixtracking.lt;
+package com.lixtracking.lt.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
 
+import com.lixtracking.lt.R;
 import com.lixtracking.lt.fragment.FragmentHistory;
 import com.lixtracking.lt.fragment.FragmentTracking;
 import com.lixtracking.lt.fragment.FragmentVehicleAlarm;
@@ -23,10 +24,10 @@ import java.util.Stack;
 /**
  * Created by saiber on 01.04.2014.
  */
-public class VehicleDetail extends FragmentActivity {
+public class VehicleDetailActivity extends FragmentActivity {
     private TabHost mTabHost;
     private HashMap<String, Stack<Fragment>> fragmentStack;
-    private String currentTab;
+    private static String currentTab;
     public static FragmentManager fragmentManager;
 
     public static final String TAB_HISTORY    = "tab_history";
@@ -145,7 +146,7 @@ public class VehicleDetail extends FragmentActivity {
         ft.replace(R.id.realtabcontent, fragment);
         ft.commit();
     }
-    public String getCurrentFragmentTag() {
+    public static String getCurrentFragmentTag() {
         return currentTab;
     }
 }

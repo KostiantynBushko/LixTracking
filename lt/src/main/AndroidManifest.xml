@@ -45,7 +45,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".VehicleDetail"></activity>
+        <activity android:name=".activities.VehicleDetailActivity"></activity>
+        <activity android:name=".activities.TrackingHistoryActivity"></activity>
 
     </application>
 
