@@ -82,9 +82,10 @@ public class FragmentVehicleAlarm extends Fragment {
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(URL.getAlertListUrl);
 
+            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(2);
             nameValuePairList.add(new BasicNameValuePair("user_id", vehicleData.user_id));
-            nameValuePairList.add(new BasicNameValuePair("gps_id", vehicleData.gps_id));
+            nameValuePairList.add(new BasicNameValuePair("terminal_id", ""/*vehicleData.gps_id*/));
 
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairList));

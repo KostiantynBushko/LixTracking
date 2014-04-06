@@ -100,6 +100,9 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
     private TextView textSpeed = null;
     RelativeLayout trackingView = null;
 
+    String dateFrom = null;
+    String dateTo = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +143,8 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
         currentVehicle.make = intent.getStringExtra(VehicleData.MAKE);
         currentVehicle.year = intent.getIntExtra(VehicleData.YEAR, 0);
         currentVehicle.status = intent.getIntExtra(VehicleData.STATUS, 0);
+        dateFrom = intent.getStringExtra("FROM");
+        dateTo = intent.getStringExtra("TO");
         //Progress bar
         progressBar = (ProgressBar)findViewById(R.id.loading_spinner);
 
@@ -156,7 +161,6 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                 showTrackingView(View.INVISIBLE);
             }
         });
-
     }
     @Override
     public void onStart() {
@@ -255,12 +259,13 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                     addFirstLast(gpsPoints.get(currentIndex));
                     currentMarker.setPosition(gpsPoints.get(currentIndex));
                     map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex)));
-                    updateTrackingView();
                     currentIndex++;
+                    updateTrackingView();
                 }
                 break;
             case R.id.button_previous:
                 if (currentIndex > 1){
+                    showTrackingView(View.VISIBLE);
                     currentIndex--;
                     map.clear();
                     polylineOptions = new PolylineOptions();
@@ -285,7 +290,6 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
 
                     map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1/*-1*/)));
                     updateTrackingView();
-                    //currentIndex--;
                 }
                 break;
         }
@@ -312,8 +316,8 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
 
             List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(3);
             nameValuePairList.add(new BasicNameValuePair("terminal_id", currentVehicle.gps_id));
-            nameValuePairList.add(new BasicNameValuePair("start_time","2013-01-01 01-00-00"));
-            nameValuePairList.add(new BasicNameValuePair("end_time","2014-03-01 01-00-00"));
+            nameValuePairList.add(new BasicNameValuePair("start_time",dateFrom));
+            nameValuePairList.add(new BasicNameValuePair("end_time",dateTo));
 
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairList));
@@ -478,10 +482,14 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
         if(gpsDatas == null || gpsDatas.isEmpty())
             return;
         Log.i("info"," Update gps view");
-        textDateTime.setText(gpsDatas.get(currentIndex-1).gps_time);
-        textLatitude.setText(gpsDatas.get(currentIndex-1).lat);
-        textLongitude.setText(gpsDatas.get(currentIndex-1).lng);
-        textSpeed.setText(Float.toString(gpsDatas.get(currentIndex-1).speed));
+        if((currentIndex-1) > gpsDatas.size())
+            return;
+        int index = (currentIndex == 0) ? currentIndex : currentIndex -1;
+
+        textDateTime.setText(gpsDatas.get(index).gps_time);
+        textLatitude.setText(gpsDatas.get(index).lat);
+        textLongitude.setText(gpsDatas.get(index).lng);
+        textSpeed.setText(Float.toString(gpsDatas.get(index).speed));
     }
     private void showTrackingView(int visible) {
         trackingView.setVisibility(visible);
