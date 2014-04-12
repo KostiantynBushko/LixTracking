@@ -30,48 +30,44 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="date time"
+            android:text="0000-00-00 00-00-00"
             android:id="@+id/textView1"
             android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="3dp"
-            android:layout_toLeftOf="@+id/imageButton" />
+            android:layout_toLeftOf="@+id/imageButton"
+            android:layout_toRightOf="@+id/textView"
+            android:layout_marginLeft="14dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="latitude"
+            android:text="0.0"
             android:id="@+id/textView2"
             android:layout_below="@+id/textView1"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="3dp"
             android:layout_alignRight="@+id/textView1"
-            android:layout_alignEnd="@+id/textView1" />
+            android:layout_alignEnd="@+id/textView1"
+            android:layout_alignLeft="@+id/textView1"
+            android:layout_alignStart="@+id/textView1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="longitude"
+            android:text="0.0"
             android:id="@+id/textView3"
             android:layout_below="@+id/textView2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="3dp"
             android:layout_alignRight="@+id/textView2"
-            android:layout_alignEnd="@+id/textView2" />
+            android:layout_alignEnd="@+id/textView2"
+            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignStart="@+id/textView2" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="speed"
+            android:text="0.0"
             android:id="@+id/textView4"
             android:layout_below="@+id/textView3"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="3dp"
             android:layout_alignRight="@+id/textView3"
-            android:layout_alignEnd="@+id/textView3" />
+            android:layout_alignEnd="@+id/textView3"
+            android:layout_alignLeft="@+id/textView3"
+            android:layout_alignStart="@+id/textView3" />
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -84,6 +80,47 @@
             android:src="@drawable/ic_action_remove_dark"
             android:layout_marginRight="3dp"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="date time"
+            android:id="@+id/textView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="latitude"
+            android:id="@+id/textView5"
+            android:layout_below="@+id/textView"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignRight="@+id/textView"
+            android:layout_alignEnd="@+id/textView" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="longitude"
+            android:id="@+id/textView6"
+            android:layout_above="@+id/textView4"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignRight="@+id/textView5"
+            android:layout_alignEnd="@+id/textView5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="speed"
+            android:id="@+id/textView7"
+            android:layout_alignTop="@+id/textView4"
+            android:layout_toLeftOf="@+id/textView4"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -94,7 +131,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:alpha="0.8"
-        android:background="@drawable/actionbar_bg">
+        android:background="@drawable/actionbar_bg"
+        android:id="@+id/relativeLayout">
         <LinearLayout
             android:layout_below="@+id/tableLayout"
             android:layout_width="match_parent"
@@ -123,5 +161,14 @@
                 android:background="@android:color/transparent"/>
         </LinearLayout>
     </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="0(0)"
+        android:id="@+id/textView8"
+        android:layout_above="@+id/relativeLayout"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

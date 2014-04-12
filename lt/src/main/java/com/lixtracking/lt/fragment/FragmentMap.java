@@ -20,10 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 
 public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClickListener{
@@ -61,16 +62,21 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private SharedPreferences sharedPreferences;
     private GoogleMap map = null;
     View view = null;
-    private MapView mapView;
     List<VehicleData> vehicleDatas = null;
-    List<GpsData> gpsDatas = null;
+    //List<GpsData> gpsDatas = null;
     GpsData firstActive = null;
     List<Marker>markerList = new ArrayList<Marker>();
 
     private boolean updateIsRunning = false;
     Context context = null;
 
-    private int currentIndex = 0;
+    //Scheduler update
+    private static int currentIndex = 0;
+    private Timer updateTimer = null;
+    private UpdateTik updateScheduler = null;
+    private int updateInterval = 5000;
+
+    TextView indicator = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +92,8 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
         try {
             view = layoutInflater.inflate(R.layout.fragment_map, container, false);
+            indicator = (TextView)view.findViewById(R.id.textView);
+
             String s = this.getClass().getSimpleName();
             sharedPreferences = getActivity().getSharedPreferences(this.getClass().getSimpleName(),Context.MODE_PRIVATE);
             map_type = sharedPreferences.getInt(PREF_MAP_TYPE, map_type);
@@ -96,20 +104,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 if(map != null) {
                     map.setMapType(map_type);
                     map.setOnInfoWindowClickListener(this);
-                    /*map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                        @Override
-                        public View getInfoWindow(Marker marker) {
-                            return null;
-                        }
-                        @Override
-                        public View getInfoContents(Marker marker) {
-                            View view = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
-                            TextView title = ((TextView)view.findViewById(R.id.textView));
-                            title.setText(marker.getTitle());
-                            ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
-                            return view;
-                        }
-                    });*/
                 }
             }
         } catch (InflateException e) {
@@ -123,32 +117,64 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     /**********************************************************************************************/
     @Override
     public void onResume() {
+        Log.i("info"," FragmentMap RESUME");
         vehicleDatas = ((MainActivity)getActivity()).getVehicle();
         super.onResume();
-        if(!updateIsRunning){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (vehicleDatas == null){
-                        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
-                    }
-                    int coun = vehicleDatas.size();
-                    int i = 0;
-                    while (i < coun) {
-                        if (updateIsRunning == false) {
-                            new getRealTimeGpsData().execute(vehicleDatas.get(i).gps_id, Integer.toString(i));
-                            i++;
-                        }
-                    }
-                }
-            }).start();
+        startUpdateTask();
+    }
+    @Override
+    public void onPause() {
+        Log.i("info"," FragmentMap PAUSE");
+        super.onPause();
+        stopUpdateTask();
+    }
+    @Override
+    public void onStop() {
+        Log.i("info"," FragmentMap STOP");
+        super.onStop();
+    }
+    /**********************************************************************************************/
+    /**/
+    /**********************************************************************************************/
+    private void stopUpdateTask() {
+        Log.i("info"," STOP UpdateTask");
+        if(updateTimer != null) {
+            updateTimer.cancel();
+            updateScheduler.cancel();
+            updateTimer = null;
+            updateScheduler = null;
         }
+    }
+    private boolean startUpdateTask() {
+        Toast toast = Toast.makeText(getActivity().getApplicationContext(),"Start monitoring "
+                + Integer.toString(vehicleDatas.size()) + " vehicle",Toast.LENGTH_LONG);
+        toast.show();
+        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
+        if((vehicleDatas != null) && (!vehicleDatas.isEmpty())) {
+            updateTimer = new Timer();
+            updateScheduler = new UpdateTik();
+            updateTimer.scheduleAtFixedRate(updateScheduler, 100, updateInterval);
+            return true;
+        }
+        return false;
     }
     class UpdateTik extends TimerTask {
         public boolean run = true;
         @Override
         public void run() {
-
+            if(!updateIsRunning) {
+                Log.i("info"," Update task tick : " + Integer.toString(currentIndex));
+                if(currentIndex >= vehicleDatas.size() ) {
+                    currentIndex = 0;
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new getRealTimeGpsData().execute(vehicleDatas.get(currentIndex).gps_id, Integer.toString(currentIndex));
+                    }
+                });
+                //new getRealTimeGpsData().execute(vehicleDatas.get(currentIndex).gps_id, Integer.toString(currentIndex));
+            }
         }
     }
     /**********************************************************************************************/
@@ -176,19 +202,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/
-    /*private boolean updateDataList () {
-        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
-        if(vehicleDatas == null)
-            return false;
-        for(int i = 0; i<vehicleDatas.size(); i++) {
-            new getRealTimeGpsData().execute(vehicleDatas.get(i).gps_id, Integer.toString(i));
-        }
-        return true;
-    }*/
-    private void updateMarker() { /**/ }
-    /**********************************************************************************************/
-    /**/
-    /**********************************************************************************************/
     @Override
     public void onInfoWindowClick(Marker marker) {
         Log.i("info"," GPS ID :" + marker.getTitle());
@@ -200,11 +213,16 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         private String resultString = "...";
         private String message = "";
         private String index = "";
+
+        @Override
+        protected void onPreExecute() {
+            indicator.setVisibility(View.VISIBLE);
+        }
         @Override
         protected String doInBackground(String... params) {
             updateIsRunning = true;
             index = params[1];
-            Log.i("info", " START: getRealTimeGpsData");
+            Log.i("info", " START: getRealTimeGpsData FragmentMap");
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
             HttpConnectionParams.setSoTimeout(httpParams, 25000);
@@ -232,7 +250,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
         @Override
         protected void onPostExecute(String result) {
-            Log.i("info"," END: getRealTimeGpsData");
             if(resultString == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Message: " + index);
@@ -248,40 +265,69 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 dialog.show();
             }else {
                 List<GpsData> tmpData = new ParseGpsData(context).parceXml(resultString);
-                if(gpsDatas == null)
-                    gpsDatas = new ArrayList<GpsData>();
-                if(tmpData != null)
-                    gpsDatas.addAll(tmpData);
-
                 if(map != null) {
-                    for(int i = 0; i<tmpData.size(); i++) {
-                        float lat = Float.parseFloat(tmpData.get(i).lat);
-                        float lng = Float.parseFloat(tmpData.get(i).lng);
+                    if(tmpData == null || tmpData.isEmpty()){
+                        Marker marker = map.addMarker(new MarkerOptions()
+                                .position(new LatLng(-100.0,-100.0))
+                                .title(" GPS ID :")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_car_gray))
+                                .snippet("speed :"));
+                        markerList.add(marker);
+                    }else{
+                        float lat = Float.parseFloat(tmpData.get(0).lat);
+                        float lng = Float.parseFloat(tmpData.get(0).lng);
+                        Log.i("info","lat :" + Float.toString(lat));
+                        Log.i("info","lng :" + Float.toString(lng));
+                        LatLng latLon = new LatLng(lat,lng);
 
-                        if((lng != 0) && (lng != 0)) {
-                            LatLng latLon = new LatLng(lat,lng);
-                            int r = R.drawable.marker_car_gray;
-                            if(vehicleDatas.get(Integer.parseInt(index)).status == 1) {
-                                r = R.drawable.marker_car;
-                            }
+                        int r = R.drawable.marker_car_gray;
+                        if(vehicleDatas.get(Integer.parseInt(index)).status == 1)
+                            r = R.drawable.marker_car;
+
+                        if(markerList.size() < vehicleDatas.size()) {
                             Marker marker = map.addMarker(new MarkerOptions()
                                             .position(latLon)
-                                            .title(" GPS ID : " + tmpData.get(i).gps_id)
+                                            .title(" GPS ID : " + tmpData.get(0).gps_id)
                                             .icon(BitmapDescriptorFactory.fromResource(r))
-                                            .snippet("speed : " + tmpData.get(i).speed)
+                                            .snippet("speed : " + tmpData.get(0).speed)
                             );
                             markerList.add(marker);
+                            if(lat == 0.0 || lng == 0.0) {
+                                marker.setVisible(false);
+                            }else {
+                                marker.setVisible(true);
+                            }
+                            Log.i("info"," Add new marker - ");
                             if(firstActive == null) {
-                                firstActive = tmpData.get(i);
+                                firstActive = tmpData.get(0);
                                 map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
                                 if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_MAP)
                                     marker.showInfoWindow();
                             }
+                        }else {
+                            if((lng != -100.0f) && (lng != -100.0f)) {
+                                markerList.get(currentIndex).setPosition(latLon);
+                                markerList.get(currentIndex).setTitle(" GPS ID : " + tmpData.get(0).gps_id);
+                                markerList.get(currentIndex).setSnippet("speed : " + tmpData.get(0).speed);
+                                markerList.get(currentIndex).setIcon(BitmapDescriptorFactory.fromResource(r));
+                            }
+                            if(lat == 0.0 || lng == 0.0) {
+                                markerList.get(currentIndex).setVisible(false);
+                            }else {
+                                markerList.get(currentIndex).setVisible(true);
+                            }
+                            Log.i("info"," Update exist marker - ");
                         }
                     }
+                    currentIndex++;
                 }
             }
             updateIsRunning = false;
+            indicator.setVisibility(View.INVISIBLE);
+            Log.i("info"," currentIndex : " + Integer.toString(currentIndex));
+            Log.i("info"," Marker list size : " + Integer.toString(markerList.size()));
+            Log.i("info"," END: getRealTimeGpsData FragmentMap");
+            Log.i("info","---------------------------------------------------------------------");
         }
     }
 

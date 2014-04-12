@@ -17,7 +17,7 @@ import java.util.List;
  * Created by saiber on 30.03.2014.
  */
 public class ParseGpsData {
-    List<GpsData> gpsDataList = new ArrayList<GpsData>();
+    List<GpsData> gpsDataList = null;
 
     public ParseGpsData(Context context) {
     }
@@ -54,8 +54,10 @@ public class ParseGpsData {
                         break;
                     case XmlPullParser.END_TAG:
                         step = 0;
-                        //Log.i("info"," END_TAG: " + xpp.getName());
+                        //Log.i("info", " END_TAG: " + xpp.getName());
                         if(xpp.getName().equals(GpsData.GPS_DATA_TAG)) {
+                            if(gpsDataList == null)
+                                gpsDataList = new ArrayList<GpsData>();
                             gpsDataList.add(gpsData);
                         }
                         break;

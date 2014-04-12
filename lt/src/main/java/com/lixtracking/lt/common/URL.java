@@ -9,4 +9,5 @@ public final class URL {
     public static String getRealTimeGpsDataUrl = "http://216.55.141.100:8081/Service.asmx/getRealTimeGpsData";
     public static String getAlertListUrl = "http://216.55.141.100:8081/Service.asmx/GetAlertList";
     public static String getHistoryGpsDataUrl = "http://216.55.141.100:8081/Service.asmx/getHistoryGpsData";
+    public static String ChangePasswordUrl = "http://216.55.141.100:8081/Service.asmx/ChangePassword";
 }

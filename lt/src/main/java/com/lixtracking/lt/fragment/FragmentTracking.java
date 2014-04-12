@@ -71,6 +71,8 @@ public class FragmentTracking extends Fragment {
     Context context = null;
     Marker marker = null;
 
+    TextView indicator = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +80,7 @@ public class FragmentTracking extends Fragment {
     }
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
+        Log.i("info"," ON CRESTE Fragment Tracking");
         if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
             if (parent != null)
@@ -85,10 +88,12 @@ public class FragmentTracking extends Fragment {
         }
         try {
             view = layoutInflater.inflate(R.layout.fragment_map, container, false);
+            indicator = (TextView)view.findViewById(R.id.textView);
             String s = this.getClass().getSimpleName();
             sharedPreferences = getActivity().getSharedPreferences(this.getClass().getSimpleName(),Context.MODE_PRIVATE);
             map_type = sharedPreferences.getInt(PREF_MAP_TYPE, map_type);
             //Setup google here
+            map = null;
             if (map == null) {
                 // Try to obtain the map from the SupportMapFragment.
                 map = ((SupportMapFragment) VehicleDetailActivity.fragmentManager
@@ -124,14 +129,23 @@ public class FragmentTracking extends Fragment {
         super.onResume();
         timer = new Timer();
         TimerTask timerTask = new Task();
-        timer.scheduleAtFixedRate(timerTask, 1, 2500);
+        timer.scheduleAtFixedRate(timerTask, 1, 1500);
     }
+    /**********************************************************************************************/
+    /* Tracking task */
+    /**********************************************************************************************/
     class Task extends TimerTask {
         @Override
         public void run() {
             if(updateIsRunning == false){
                 if(vehicleData != null)
-                    new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
+                        }
+                    });
+                    //new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
             }
         }
     }
@@ -170,6 +184,10 @@ public class FragmentTracking extends Fragment {
         private String resultString = "...";
         private String message = "";
         //private String index = "";
+        @Override
+        protected void onPreExecute() {
+            indicator.setVisibility(View.VISIBLE);
+        }
         @Override
         protected String doInBackground(String... params) {
             updateIsRunning = true;
@@ -220,40 +238,46 @@ public class FragmentTracking extends Fragment {
                 Log.i("info","result : " + resultString);
                 Log.i("info","--------------------------------------------------------------------");
                 List<GpsData> tmpDatas = new ParseGpsData(context).parceXml(resultString);
-                if((tmpDatas != null) && (!tmpDatas.isEmpty()))
+                if((tmpDatas != null) && (!tmpDatas.isEmpty())) {
                     gpsDatas = tmpDatas;
+                    if(map != null) {
+                        float lat = Float.parseFloat(gpsDatas.get(0).lat);
+                        float lng = Float.parseFloat(gpsDatas.get(0).lng);
 
-                if(map != null) {
-                    float lat = Float.parseFloat(gpsDatas.get(0).lat);
-                    float lng = Float.parseFloat(gpsDatas.get(0).lng);
-                    LatLng latLon = new LatLng(lat,lng);
+                        if(lat != 0.0f && lng != 0.0f) {
+                            LatLng latLon = new LatLng(lat,lng);
+                            boolean isShow = false;
+                            if((marker != null) && marker.isInfoWindowShown()){
+                                isShow = true;
+                            }
+                            map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
 
-                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
-
-                    int r = R.drawable.marker_car_gray;
-                    if(vehicleData.status == 1) {
-                        r = R.drawable.marker_car;
-                    }
-                    if(marker == null) {
-                        marker = map.addMarker(new MarkerOptions()
-                                        .position(latLon)
-                                        .title(" GPS ID : " + gpsDatas.get(0).gps_id)
-                                        .icon(BitmapDescriptorFactory.fromResource(r))
-                                        .snippet("speed : " + gpsDatas.get(0).speed)
-                        );
-                    } else {
-                        marker.setPosition(latLon);
-                        marker.setTitle(" GPS ID : " + gpsDatas.get(0).gps_id);
-                        marker.setSnippet("speed : " + gpsDatas.get(0).speed);
-                        marker.setIcon(BitmapDescriptorFactory.fromResource(r));
-                        if(marker.isInfoWindowShown()){
-                            marker.showInfoWindow();
+                            int r = R.drawable.marker_car_gray;
+                            if(vehicleData.status == 1) {
+                                r = R.drawable.marker_car;
+                            }
+                            if(marker == null) {
+                                marker = map.addMarker(new MarkerOptions()
+                                                .position(latLon)
+                                                .title(" GPS ID : " + gpsDatas.get(0).gps_id)
+                                                .icon(BitmapDescriptorFactory.fromResource(r))
+                                                .snippet("speed : " + gpsDatas.get(0).speed)
+                                );
+                            } else {
+                                marker.setPosition(latLon);
+                                marker.setTitle(" GPS ID : " + gpsDatas.get(0).gps_id);
+                                marker.setSnippet("speed : " + gpsDatas.get(0).speed);
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(r));
+                                if(isShow){
+                                    marker.showInfoWindow();
+                                }
+                            }
                         }
                     }
-                    //map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
                 }
             }
             updateIsRunning = false;
+            indicator.setVisibility(View.INVISIBLE);
         }
     }
     /**********************************************************************************************/

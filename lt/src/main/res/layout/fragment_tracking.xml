@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_gray">
-
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/map"
@@ -13,4 +12,19 @@
         android:name="com.google.android.gms.maps.SupportMapFragment">
     </fragment>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Tracking"
+        android:id="@+id/textView"
+        android:textColor="#ffff1439"
+        android:alpha="0.9"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="2dp"
+        android:layout_marginRight="5dp"/>
+
+</RelativeLayout>

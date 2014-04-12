@@ -129,21 +129,20 @@ public class LoginActivity extends Activity implements View.OnClickListener{
     /**********************************************************************************************/
     /* Login async task */
     /**********************************************************************************************/
-    class LoginTask extends AsyncTask<String, Void, Boolean> {
+    class LoginTask extends AsyncTask<String, Void, String> {
         private ProgressDialog progressDialog = null;
-        boolean result = false;
         HttpResponse httpResponse;
-
+        boolean r = false;
         @Override
         protected void onPreExecute() {
             progressDialog = ProgressDialog.show(LoginActivity.this,"Please wait..."," please wait...",true);
         }
 
         @Override
-        protected Boolean doInBackground(String... url) {
+        protected String doInBackground(String... url) {
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
-            HttpConnectionParams.setSoTimeout(httpParams, 5000);
+            HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
+            HttpConnectionParams.setSoTimeout(httpParams, 2000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(url[0]);
@@ -164,22 +163,22 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 HttpEntity httpEntity = httpResponse.getEntity();
                 message = EntityUtils.toString(httpEntity);
                 Log.i("info", message);
-                result = VerifyUserLogin(message);
-
+                //result = message//VerifyUserLogin(message);
             } catch (IOException e) {
                 message = "Server doesn't response";
-                result = false;
                 e.printStackTrace();
+                r = false;
             }
-            return result;
+            return message;
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(String resultMessage) {
             progressDialog.dismiss();
             progressDialog.cancel();
+            boolean result = false;
 
+            result = VerifyUserLogin(message);
             if (result == true) {
                 if(checkBox.isChecked()) {
                     settings.setUserSession(true);
