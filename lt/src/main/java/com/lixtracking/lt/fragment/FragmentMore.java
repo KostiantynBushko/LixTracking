@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.lixtracking.lt.R;
+import com.lixtracking.lt.activities.AboutActivity;
 import com.lixtracking.lt.activities.ChangePasswordActivity;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class FragmentMore extends Fragment {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
         View view = layoutInflater.inflate(R.layout.fragment_more, container, false);
         listView = (ListView)view.findViewById(R.id.listView);
+        listView.setDividerHeight(5);
         return view;
     }
     @Override
@@ -39,9 +41,16 @@ public class FragmentMore extends Fragment {
         super.onResume();
         listObjects = new ArrayList<HashMap<String, Object>>();
         HashMap<String, Object>item = new HashMap<String, Object>();
+
         item.put(TITLE,"User account settings");
         item.put(DESCRIPTION," allow user change password");
         item.put(ICON,R.drawable.ic_action_person_dark);
+        listObjects.add(item);
+
+        item = new HashMap<String, Object>();
+        item.put(TITLE,"About");
+        item.put(DESCRIPTION," info about application");
+        item.put(ICON,R.drawable.ic_action_about_dark);
         listObjects.add(item);
 
         SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.settings_item,
@@ -59,6 +68,8 @@ public class FragmentMore extends Fragment {
                         startActivity(intent);
                         break;
                     case 1:
+                        Intent intent1 = new Intent(getActivity(), AboutActivity.class);
+                        startActivity(intent1);
                         break;
 
                 }

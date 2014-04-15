@@ -7,6 +7,7 @@ package com.lixtracking.lt.fragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
+import com.lixtracking.lt.activities.VehicleDetailInfoActivity;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.data_class.VehicleData;
@@ -118,9 +120,10 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     @Override
     public void onResume() {
         Log.i("info"," FragmentMap RESUME");
-        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
         super.onResume();
-        startUpdateTask();
+        vehicleDatas = ((MainActivity)getActivity()).getVehicle();
+        if(vehicleDatas != null)
+            startUpdateTask();
     }
     @Override
     public void onPause() {
@@ -194,7 +197,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 break;
             case R.id.action_map_satellite:
                 map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                sharedPreferences.edit().putInt(PREF_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID).commit();
+                sharedPreferences.edit().putInt(PREF_MAP_TYPE, 4).commit();
                 break;
         }
         return true;
@@ -204,7 +207,27 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     /**********************************************************************************************/
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.i("info"," GPS ID :" + marker.getTitle());
+        String marker_title = marker.getTitle().substring(6);
+        Log.i("info"," TITLE :" +  marker.getTitle());
+        Log.i("info"," VIN :" +  marker_title);
+        for(int i = 0; i<vehicleDatas.size(); i++) {
+            if(marker_title.compareTo(vehicleDatas.get(i).vin) == 0) {
+                Log.i("info"," NUMBER : " + Integer.toString(i));
+                Intent intent = new Intent(getActivity(), VehicleDetailInfoActivity.class);
+                intent.putExtra(VehicleData.GPS_ID, vehicleDatas.get(i).gps_id);
+                intent.putExtra(VehicleData.VIN,vehicleDatas.get(i).vin);
+                intent.putExtra(VehicleData.USER_ID,vehicleDatas.get(i).user_id);
+                intent.putExtra(VehicleData.STOCK_NUMBER,vehicleDatas.get(i).stock_number);
+                intent.putExtra(VehicleData.FIRST_NAME,vehicleDatas.get(i).first_name);
+                intent.putExtra(VehicleData.LAST_NAME,vehicleDatas.get(i).last_name);
+                intent.putExtra(VehicleData.MODEL,vehicleDatas.get(i).model);
+                intent.putExtra(VehicleData.MAKE,vehicleDatas.get(i).make);
+                intent.putExtra(VehicleData.STATUS,vehicleDatas.get(i).status);
+                intent.putExtra(VehicleData.YEAR,vehicleDatas.get(i).year);
+                getActivity().startActivity(intent);
+                break;
+            }
+        }
     }
     /**********************************************************************************************/
     /**/
@@ -213,7 +236,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         private String resultString = "...";
         private String message = "";
         private String index = "";
-
         @Override
         protected void onPreExecute() {
             indicator.setVisibility(View.VISIBLE);
@@ -287,7 +309,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         if(markerList.size() < vehicleDatas.size()) {
                             Marker marker = map.addMarker(new MarkerOptions()
                                             .position(latLon)
-                                            .title(" GPS ID : " + tmpData.get(0).gps_id)
+                                            .title("VIN : " + vehicleDatas.get(currentIndex).vin)
                                             .icon(BitmapDescriptorFactory.fromResource(r))
                                             .snippet("speed : " + tmpData.get(0).speed)
                             );
@@ -307,7 +329,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         }else {
                             if((lng != -100.0f) && (lng != -100.0f)) {
                                 markerList.get(currentIndex).setPosition(latLon);
-                                markerList.get(currentIndex).setTitle(" GPS ID : " + tmpData.get(0).gps_id);
+                                markerList.get(currentIndex).setTitle(" VIN : " + vehicleDatas.get(currentIndex).vin);
                                 markerList.get(currentIndex).setSnippet("speed : " + tmpData.get(0).speed);
                                 markerList.get(currentIndex).setIcon(BitmapDescriptorFactory.fromResource(r));
                             }

@@ -3,6 +3,7 @@ package com.lixtracking.lt.fragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.VehicleDetailActivity;
+import com.lixtracking.lt.activities.VehicleDetailInfoActivity;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.data_class.VehicleData;
@@ -58,6 +60,7 @@ public class FragmentTracking extends Fragment {
     private static final String PREF_MAP_TYPE = "pref_map_type";
     private int map_type = GoogleMap.MAP_TYPE_NORMAL;
     private SharedPreferences sharedPreferences;
+    private AsyncTask realTimeGpsData = null;
 
     private GoogleMap map = null;
     View view = null;
@@ -100,20 +103,23 @@ public class FragmentTracking extends Fragment {
                         .findFragmentById(R.id.map)).getMap();
                 if(map != null) {
                     map.setMapType(map_type);
-                    /*map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                         @Override
-                        public View getInfoWindow(Marker marker) {
-                            return null;
+                        public void onInfoWindowClick(Marker marker) {
+                            Intent intent = new Intent(getActivity(), VehicleDetailInfoActivity.class);
+                            intent.putExtra(VehicleData.GPS_ID,vehicleData.gps_id);
+                            intent.putExtra(VehicleData.VIN,vehicleData.vin);
+                            intent.putExtra(VehicleData.USER_ID,vehicleData.user_id);
+                            intent.putExtra(VehicleData.STOCK_NUMBER,vehicleData.stock_number);
+                            intent.putExtra(VehicleData.FIRST_NAME,vehicleData.first_name);
+                            intent.putExtra(VehicleData.LAST_NAME,vehicleData.last_name);
+                            intent.putExtra(VehicleData.MODEL,vehicleData.model);
+                            intent.putExtra(VehicleData.MAKE,vehicleData.make);
+                            intent.putExtra(VehicleData.STATUS,vehicleData.status);
+                            intent.putExtra(VehicleData.YEAR,vehicleData.year);
+                            getActivity().startActivity(intent);
                         }
-                        @Override
-                        public View getInfoContents(Marker marker) {
-                            View view = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
-                            TextView title = ((TextView)view.findViewById(R.id.textView));
-                            title.setText(marker.getTitle());
-                            ((TextView)view.findViewById(R.id.textView2)).setText(marker.getSnippet());
-                            return view;
-                        }
-                    });*/
+                    });
                 }
             }
         } catch (InflateException e) {
@@ -142,16 +148,16 @@ public class FragmentTracking extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
+                            realTimeGpsData = new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
                         }
                     });
-                    //new getRealTimeGpsData().execute(((VehicleDetailActivity)getActivity()).vehicleData.gps_id);
             }
         }
     }
     @Override
     public void onPause() {
         super.onPause();
+        realTimeGpsData.cancel(true);
         timer.cancel();
         timer = null;
     }
@@ -172,7 +178,7 @@ public class FragmentTracking extends Fragment {
                 break;
             case R.id.action_map_satellite:
                 map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                sharedPreferences.edit().putInt(PREF_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID).commit();
+                sharedPreferences.edit().putInt(PREF_MAP_TYPE, 4).commit();
                 break;
         }
         return true;
@@ -181,7 +187,7 @@ public class FragmentTracking extends Fragment {
     /**/
     /**********************************************************************************************/
     class getRealTimeGpsData extends AsyncTask<String, Void, String> {
-        private String resultString = "...";
+        private String resultString = "";
         private String message = "";
         //private String index = "";
         @Override
@@ -194,8 +200,8 @@ public class FragmentTracking extends Fragment {
             //index = params[1];
             Log.i("info", " START: getVehiclesTask");
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 25000);
-            HttpConnectionParams.setSoTimeout(httpParams, 25000);
+            HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+            HttpConnectionParams.setSoTimeout(httpParams, 5000);
 
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpPost httpPost = new HttpPost(URL.getRealTimeGpsDataUrl);
@@ -259,13 +265,13 @@ public class FragmentTracking extends Fragment {
                             if(marker == null) {
                                 marker = map.addMarker(new MarkerOptions()
                                                 .position(latLon)
-                                                .title(" GPS ID : " + gpsDatas.get(0).gps_id)
+                                                .title(" VIN : " + vehicleData.vin)
                                                 .icon(BitmapDescriptorFactory.fromResource(r))
                                                 .snippet("speed : " + gpsDatas.get(0).speed)
                                 );
                             } else {
                                 marker.setPosition(latLon);
-                                marker.setTitle(" GPS ID : " + gpsDatas.get(0).gps_id);
+                                marker.setTitle(" VIN : " + vehicleData.vin);
                                 marker.setSnippet("speed : " + gpsDatas.get(0).speed);
                                 marker.setIcon(BitmapDescriptorFactory.fromResource(r));
                                 if(isShow){

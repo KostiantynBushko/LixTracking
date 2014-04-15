@@ -26,7 +26,8 @@
         android:layout_alignStart="@+id/listView"
         android:layout_alignRight="@+id/listView"
         android:layout_alignEnd="@+id/listView"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp"
+        android:background="@drawable/gradient_button"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -38,6 +39,7 @@
         android:layout_alignLeft="@+id/button"
         android:layout_alignStart="@+id/button"
         android:layout_alignRight="@+id/button"
-        android:layout_alignEnd="@+id/button" />
+        android:layout_alignEnd="@+id/button"
+        android:background="@drawable/gradient_button"/>
 
 </RelativeLayout>

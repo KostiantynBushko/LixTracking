@@ -121,7 +121,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
         map_type = sharedPreferences.getInt(PREF_MAP_TYPE, map_type);
         map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMapType(map_type);
-        map.animateCamera(CameraUpdateFactory.zoomTo(15));
+        map.animateCamera(CameraUpdateFactory.zoomTo(9));
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setZoomControlsEnabled(false);
 
@@ -180,6 +180,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
     public void onResume() {
         Log.i("info", " TrackingHistoryActivity : RESUME" );
         super.onResume();
+        stepText = (TextView)findViewById(R.id.textView8);
     }
     @Override
     public void onPause() {
@@ -211,7 +212,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                 break;
             case R.id.action_map_satellite:
                 map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                sharedPreferences.edit().putInt(PREF_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID).commit();
+                sharedPreferences.edit().putInt(PREF_MAP_TYPE, 4).commit();
                 break;
         }
         return true;
@@ -240,7 +241,7 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                     previous.setVisibility(View.INVISIBLE);
                     //currentIndex = 1;
                     map.clear();
-                    polylineOptions = new PolylineOptions();
+                    //polylineOptions = new PolylineOptions();
                     polylineOptions.color(Color.argb(lineAlpha,50,50, 255));
                     polyline = map.addPolyline(polylineOptions);
                     map.addMarker(new MarkerOptions()
@@ -396,27 +397,29 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                         Log.i("info","lng         : " + tmpData.get(i).lng);
                         Log.i("info","--------------------------------------------------------------------");
                     }
-                    stepText.setText("0" + "(" + Integer.toString(gpsPoints.size()) + ")");
-                    playStatus = 2;
-                    play.setImageResource(R.drawable.play_button_selector);
-                    play.setVisibility(View.VISIBLE);
-                    next.setVisibility(View.VISIBLE);
-                    previous.setVisibility(View.VISIBLE);
+                    if(gpsPoints != null && (!gpsPoints.isEmpty())) {
+                        stepText.setText("0" + "(" + Integer.toString(gpsPoints.size()) + ")");
+                        playStatus = 2;
+                        play.setImageResource(R.drawable.play_button_selector);
+                        play.setVisibility(View.VISIBLE);
+                        next.setVisibility(View.VISIBLE);
+                        previous.setVisibility(View.VISIBLE);
 
-                    // Map
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(firstPoint, 15);
-                    map.moveCamera(cameraUpdate);
-                    currentMarker = map.addMarker(new MarkerOptions()
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_stop))
-                            .position(firstPoint).title(" Finish")
-                            .snippet("Lat " + Double.toString(firstPoint.latitude)
-                                    + " Lng : " + Double.toString(firstPoint.longitude)));
-                    firstMarker = map.addMarker(new MarkerOptions()
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
-                            .position(firstPoint)
-                            .title(" Start")
-                            .snippet("Lat " + Double.toString(firstPoint.latitude)
-                                    + " Lng : " + Double.toString(firstPoint.longitude)));
+                        // Map
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(firstPoint, 15);
+                        map.moveCamera(cameraUpdate);
+                        currentMarker = map.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_stop))
+                                .position(firstPoint).title(" Finish")
+                                .snippet("Lat " + Double.toString(firstPoint.latitude)
+                                        + " Lng : " + Double.toString(firstPoint.longitude)));
+                        firstMarker = map.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
+                                .position(firstPoint)
+                                .title(" Start")
+                                .snippet("Lat " + Double.toString(firstPoint.latitude)
+                                        + " Lng : " + Double.toString(firstPoint.longitude)));
+                    }
                 }else {
                     Toast toast = Toast.makeText(getApplicationContext(),"...try again later",Toast.LENGTH_SHORT);
                     toast.show();
@@ -455,7 +458,8 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
                             map.clear();
                             polyline = map.addPolyline(polylineOptions);
                             addFirstLast(gpsPoints.get(currentIndex-1));
-                            map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1)));
+                            //map.animateCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1)));
+                            map.moveCamera(CameraUpdateFactory.newLatLng(gpsPoints.get(currentIndex-1)));
                             updateTrackingView();
                             /*currentMarker.setPosition(gpsPoints.get(currentIndex-1));
                             currentMarker.setSnippet("Lat " + Double.toString(gpsPoints.get(currentIndex-1).latitude)
@@ -513,7 +517,15 @@ public class TrackingHistoryActivity extends Activity implements View.OnClickLis
         int index = (currentIndex == 0) ? currentIndex : currentIndex -1;*/
         if(currentIndex == gpsDatas.size())
             return;
-        Log.i("info",gpsDatas.get(currentIndex).gps_time);
+
+        String date = gpsDatas.get(currentIndex).gps_time.substring(0,4) + "-" +
+                gpsDatas.get(currentIndex).gps_time.substring(4,6) + "-"
+                + gpsDatas.get(currentIndex).gps_time.substring(6,8) +" "
+                + gpsDatas.get(currentIndex).gps_time.substring(8,10) +"-"
+                + gpsDatas.get(currentIndex).gps_time.substring(10,12) +"-"
+                + gpsDatas.get(currentIndex).gps_time.substring(12,14);
+
+        Log.i("info",date);
         Log.i("info",gpsDatas.get(currentIndex).lat);
         Log.i("info",gpsDatas.get(currentIndex).lng);
         Log.i("info",Float.toString(gpsDatas.get(currentIndex).speed));

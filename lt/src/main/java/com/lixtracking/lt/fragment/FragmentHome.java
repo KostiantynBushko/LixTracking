@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -126,11 +127,53 @@ public class FragmentHome extends Fragment {
     /**********************************************************************************************/
     /* MENU */
     /**********************************************************************************************/
-    @Override
+   @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_home,menu);
-        super.onCreateOptionsMenu(menu,inflater);
+       inflater.inflate(R.menu.menu_home,menu);
+       super.onCreateOptionsMenu(menu,inflater);
+
+       SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+       searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+           @Override
+           public boolean onQueryTextSubmit(String s) {
+               Log.i("info"," SEARCH TEXT SUBMIT : " + s);
+               return false;
+           }
+           @Override
+           public boolean onQueryTextChange(String s) {
+               Log.i("info"," SEARCH TEXT CHANGE : " + s);
+               return false;
+           }
+       });
+
+       searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+           @Override
+           public boolean onClose() {
+               Log.i("info", " SEARCH VIEW CLOSE : ");
+               return false;
+           }
+       });
+
+       searchView.setOnSearchClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               Log.i("info"," SEARCH CLICK : ");
+           }
+       });
+       searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+           @Override
+           public boolean onSuggestionSelect(int i) {
+               Log.i("info"," SEARCH SUGGESTION : ");
+               return false;
+           }
+
+           @Override
+           public boolean onSuggestionClick(int i) {
+               return false;
+           }
+       });
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
@@ -140,6 +183,10 @@ public class FragmentHome extends Fragment {
                     new getVehiclesTask().execute();
                 }
                 break;
+            case R.id.action_search:
+                // search action
+                Log.i("info"," ACTION SEARCH : ");
+                return true;
         }
         return true;
     }

@@ -7,6 +7,10 @@
             android:right="20dip"
             android:top="7dip"
             android:bottom="7dip"/>
+        <stroke
+            android:width="2dp"
+            android:color="#ffb48f64"
+            android:alpha="0.5"/>
         <corners
             android:bottomRightRadius="25dp"
             android:bottomLeftRadius="25dp"
@@ -16,6 +20,10 @@
 </item>
 <item>
     <shape>
+        <stroke
+            android:width="2dp"
+            android:color="#ffb48f64"
+            android:alpha="0.5"/>
         <solid android:color="#ffa6a4a5"/>
         <padding android:left="20dip"
             android:right="20dip"

@@ -72,6 +72,7 @@ public class FragmentHistory extends Fragment {
             }
         });
 
+        listObjects.clear();
         listView = (ListView)view.findViewById(R.id.listView);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         Calendar c = GregorianCalendar.getInstance();

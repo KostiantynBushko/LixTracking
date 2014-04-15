@@ -10,4 +10,7 @@ public final class URL {
     public static String getAlertListUrl = "http://216.55.141.100:8081/Service.asmx/GetAlertList";
     public static String getHistoryGpsDataUrl = "http://216.55.141.100:8081/Service.asmx/getHistoryGpsData";
     public static String ChangePasswordUrl = "http://216.55.141.100:8081/Service.asmx/ChangePassword";
+    public static String getVehiclesByVINUrl = "http://216.55.141.100:8081/Service.asmx/getVehiclesByVIN";
+    public static String GetAlertListLimitedUrl = "http://216.55.141.100:8081/Service.asmx/GetAlertListLimited";
+    public static String GetAlertGpsDataUrl = "http://216.55.141.100:8081/Service.asmx/GetAlertGpsData";
 }

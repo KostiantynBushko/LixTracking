@@ -37,7 +37,8 @@
         android:layout_marginBottom="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF"
+        android:background="@drawable/gradient_button"/>
 
 </RelativeLayout>
 

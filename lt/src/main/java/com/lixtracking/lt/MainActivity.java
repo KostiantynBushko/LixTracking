@@ -70,7 +70,6 @@ public class MainActivity extends FragmentActivity {
         inflater.inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }*/
-
     /**********************************************************************************************/
     /* Initialise tab button */
     /**********************************************************************************************/

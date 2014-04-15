@@ -18,7 +18,8 @@
         android:layout_alignRight="@+id/editText2"
         android:layout_alignEnd="@+id/editText2"
         android:layout_alignLeft="@+id/editText2"
-        android:layout_alignStart="@+id/editText2" />
+        android:layout_alignStart="@+id/editText2"
+        android:background="@drawable/edit_text"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -36,7 +37,8 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="15dp"
         android:hint="password"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:background="@drawable/edit_text"/>
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -66,7 +68,8 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textColor="#ffffffff"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:background="@drawable/gradient_button"/>
 
     <ImageView
         android:layout_width="wrap_content"

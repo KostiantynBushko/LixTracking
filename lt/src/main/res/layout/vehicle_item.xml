@@ -18,7 +18,7 @@
             android:id="@+id/icon"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/car_na" />
+            android:src="@drawable/ic_action_alarms_dark" />
     </LinearLayout>
 
     <TextView
@@ -30,8 +30,8 @@
         android:textSize="15dip"
         android:textStyle="bold"
         android:typeface="sans"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
+        android:layout_alignBaseline="@+id/text1"
+        android:layout_alignBottom="@+id/text1"
         android:layout_toRightOf="@+id/thumbnail" />
 
     <TextView

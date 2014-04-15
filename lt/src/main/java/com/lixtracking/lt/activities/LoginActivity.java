@@ -164,6 +164,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 message = EntityUtils.toString(httpEntity);
                 Log.i("info", message);
                 //result = message//VerifyUserLogin(message);
+                r = true;
             } catch (IOException e) {
                 message = "Server doesn't response";
                 e.printStackTrace();
@@ -178,7 +179,24 @@ public class LoginActivity extends Activity implements View.OnClickListener{
             progressDialog.cancel();
             boolean result = false;
 
+            if(r == false ) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setTitle("Error");
+                builder.setMessage(message);
+                builder.setIcon(R.drawable.ic_action_warning_dark);
+                builder.setCancelable(true);
+                builder.setPositiveButton("cancel",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return;
+            }
             result = VerifyUserLogin(message);
+            Log.i("info"," LOGIN : " + message);
             if (result == true) {
                 if(checkBox.isChecked()) {
                     settings.setUserSession(true);
@@ -192,7 +210,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 // Error login
                 AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 builder.setTitle("Error");
-                builder.setMessage(message);
+                builder.setMessage("Incorrect username or password");
                 builder.setIcon(R.drawable.ic_action_warning_dark);
                 builder.setCancelable(true);
                 builder.setPositiveButton("cancel",new DialogInterface.OnClickListener() {
