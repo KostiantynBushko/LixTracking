@@ -1,13 +1,13 @@
 package com.lixtracking.lt.fragment;
 
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,12 +18,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.VehicleDetailActivity;
+import com.lixtracking.lt.common.LixApplication;
 import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.VehicleData;
@@ -53,11 +55,21 @@ import java.util.List;
  */
 public class FragmentHome extends Fragment {
     private static final String NAME = "name";
-    private static final String GPS_ID = "vin";
+    private static final String GPS_ID = "gps_id";
+    private static final String VIN = "vin";
+    private static final String STATUS = "status";
     private static final String STOCK_NUMBER = "stok_number";
     private static final String ID  = "id";
     private static final String ICON  = "icon";
     private ProgressBar progressBar;
+
+    private ToggleButton toggleButton1;
+    private ToggleButton toggleButton2;
+    private ToggleButton toggleButton3;
+
+    int online = 0;
+    int offline = 0;
+    int all = 0;
 
     private View view;
     private Context context;
@@ -81,6 +93,37 @@ public class FragmentHome extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
         context = getActivity();
         listView = (ListView)view.findViewById(R.id.listView);
+        toggleButton1 = (ToggleButton)view.findViewById(R.id.toggleButton1);
+        toggleButton2 = (ToggleButton)view.findViewById(R.id.toggleButton2);
+        toggleButton3 = (ToggleButton)view.findViewById(R.id.toggleButton3);
+        toggleButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleButton2.setChecked(false);
+                toggleButton3.setChecked(false);
+                if(toggleButton1.isChecked())
+                    toggleButton1.setChecked(true);
+            }
+        });
+        toggleButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleButton1.setChecked(false);
+                toggleButton3.setChecked(false);
+                if(toggleButton2.isChecked())
+                    toggleButton2.setChecked(true);
+            }
+        });
+        toggleButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleButton1.setChecked(false);
+                toggleButton2.setChecked(false);
+                if(toggleButton3.isChecked())
+                    toggleButton3.setChecked(true);
+            }
+        });
+        toggleButton1.setChecked(true);
         return view;
     }
     @Override
@@ -89,8 +132,8 @@ public class FragmentHome extends Fragment {
         Log.i("info"," RESUME: FragmentHome");
         if(listObjects != null){
             SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
-                    new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
-                    new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
+                    new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER,VIN, STATUS},
+                    new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         }else {
@@ -132,7 +175,10 @@ public class FragmentHome extends Fragment {
        inflater.inflate(R.menu.menu_home,menu);
        super.onCreateOptionsMenu(menu,inflater);
 
+       // Associate searchable configuration with the SearchView
+       SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+       searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
            @Override
            public boolean onQueryTextSubmit(String s) {
@@ -145,7 +191,19 @@ public class FragmentHome extends Fragment {
                return false;
            }
        });
-
+       /*SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+       searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+           @Override
+           public boolean onQueryTextSubmit(String s) {
+               Log.i("info"," SEARCH TEXT SUBMIT : " + s);
+               return false;
+           }
+           @Override
+           public boolean onQueryTextChange(String s) {
+               Log.i("info"," SEARCH TEXT CHANGE : " + s);
+               return false;
+           }
+       });
        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
            @Override
            public boolean onClose() {
@@ -153,7 +211,6 @@ public class FragmentHome extends Fragment {
                return false;
            }
        });
-
        searchView.setOnSearchClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -171,7 +228,7 @@ public class FragmentHome extends Fragment {
            public boolean onSuggestionClick(int i) {
                return false;
            }
-       });
+       });*/
     }
 
     @Override
@@ -253,9 +310,6 @@ public class FragmentHome extends Fragment {
                 isRunning = false;
                 return;
             }else if(result == null && listObjects != null) {
-                Toast toast = Toast.makeText(getActivity().getApplicationContext(), "...connection failure",Toast.LENGTH_SHORT);
-                toast.show();
-                // Update list vehicle
                 if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
                     SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
                             new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
@@ -268,38 +322,57 @@ public class FragmentHome extends Fragment {
                 return;
             }
 
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "...updated successfully",Toast.LENGTH_SHORT);
-            toast.show();
             listObjects = new ArrayList<HashMap<String, Object>>();
             vehicleDataList = new ParceVehicles(context).parceXml(result);
-            MainActivity activity = (MainActivity)getActivity();
-            activity.vehicleDataListGlobal = vehicleDataList;
 
-            for(int i = 0; i<vehicleDataList.size(); i++) {
-                VehicleData data = vehicleDataList.get(i);
-                HashMap<String, Object>item = new HashMap<String, Object>();
-                item.put(ID,Integer.toString(i+1));
-                item.put(NAME, data.first_name + " " + data.last_name + " :" + data.vin);
-                item.put(GPS_ID, data.gps_id);
-                item.put(STOCK_NUMBER, data.stock_number);
-                if(data.status == 1) {
-                    item.put(ICON, R.drawable.car);
-                } else {
-                    item.put(ICON, R.drawable.car_na);
+            if(vehicleDataList != null && (!vehicleDataList.isEmpty())) {
+                all = vehicleDataList.size();
+                // pass reference to vehicle data list in to application
+                LixApplication.getInstance().setVehicleDataList(vehicleDataList);
+
+                MainActivity activity = (MainActivity)getActivity();
+                activity.vehicleDataListGlobal = vehicleDataList;
+
+                for(int i = 0; i<vehicleDataList.size(); i++) {
+                    VehicleData data = vehicleDataList.get(i);
+                    HashMap<String, Object>item = new HashMap<String, Object>();
+                    item.put(ID,Integer.toString(i+1));
+                    item.put(NAME, data.first_name + " " + data.last_name);
+                    item.put(GPS_ID, "gps id : " + data.gps_id);
+                    item.put(VIN,"VIN : " + data.vin);
+                    item.put(STATUS,data.status == 1 ? "on" : "off");
+                    item.put(STOCK_NUMBER, "stock number : " + data.stock_number);
+                    if(data.status == 1) {
+                        item.put(ICON, R.drawable.car);
+                        online+=1;
+                    } else {
+                        item.put(ICON, R.drawable.car_na);
+                        offline+=1;
+                    }
+                    listObjects.add(item);
                 }
-                listObjects.add(item);
-            }
 
-            // Update list vehicle
-            if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
-                SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
-                        new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER},
-                        new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3});
-                listView.setAdapter(adapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                // Update list vehicle
+                if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
+                            new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER,VIN, STATUS},
+                            new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
+                    listView.setAdapter(adapter);
+                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                    toggleButton1.setTextOff("All["+Integer.toString(all) + "]");
+                    toggleButton2.setTextOff("Online["+Integer.toString(online) + "]");
+                    toggleButton3.setTextOff("Offline["+Integer.toString(offline) + "]");
+                    toggleButton1.setTextOn("All["+Integer.toString(all) + "]");
+                    toggleButton2.setTextOn("Online["+Integer.toString(online) + "]");
+                    toggleButton3.setTextOn("Offline["+Integer.toString(offline) + "]");
+                    toggleButton1.invalidate();
+                    toggleButton2.invalidate();
+                    toggleButton2.invalidate();
+                }
             }
             progressBar.setVisibility(View.INVISIBLE);
             isRunning = false;
         }
     }
+    /**********************************************************************************************/
 }

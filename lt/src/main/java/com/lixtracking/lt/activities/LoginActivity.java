@@ -135,7 +135,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
         boolean r = false;
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(LoginActivity.this,"Please wait..."," please wait...",true);
+            progressDialog = ProgressDialog.show(LoginActivity.this,""," please wait...",true);
         }
 
         @Override

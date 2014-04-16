@@ -21,5 +21,45 @@
         android:background="@color/dark_gray"
         android:layout_gravity="center_horizontal"
         android:layout_marginRight="2dp"
-        android:layout_marginLeft="2dp"/>
+        android:layout_marginLeft="2dp"
+        android:layout_below="@+id/relativeLayout"
+        android:layout_marginTop="2dp"/>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/relativeLayout"
+        android:background="@color/light_gray">
+        <LinearLayout
+            android:layout_below="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+            <ToggleButton
+                android:id="@+id/toggleButton1"
+                android:layout_height="fill_parent"
+                android:textOff="All"
+                android:textOn="All"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"/>
+            <ToggleButton
+                android:id="@+id/toggleButton2"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textOff="Online"
+                android:textOn="Online"/>
+            <ToggleButton
+                android:id="@+id/toggleButton3"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textOff="Offline"
+                android:textOn="Offline"/>
+        </LinearLayout>
+
+        </RelativeLayout>
 </RelativeLayout>

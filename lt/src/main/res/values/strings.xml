@@ -12,10 +12,15 @@
     <string name="video">Video</string>
     <string name="email">EMail</string>
 
+    <string name="about_lite_1">This applies to software runs more than Android 3.0 version.</string>
+    <string name="about_lite_2">This software provide monitoring location on the map of vehicles.</string>
+    <string name="about_lite_3">This software need to be networked, will produce the internet traffic, traffic fee charging standard please refer to the telecom operators.</string>
+    <string name="web_site_link">http://216.55.141.100:8080</string>
     <color name="light_gray">#ffc1c1c1</color>
     <color name="dark_gray">#ff858585</color>
     <color name="light_blue">#ff61aeff</color>
     <color name="text_light">#ffe2b484</color>
     <color name="text_dark">#ffb48f64</color>
+
 
 </resources>
