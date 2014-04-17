@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +69,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     //List<GpsData> gpsDatas = null;
     GpsData firstActive = null;
     List<Marker>markerList = new ArrayList<Marker>();
+    private int currentMarker = 0;
 
     private boolean updateIsRunning = false;
     Context context = null;
@@ -111,6 +113,38 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         } catch (InflateException e) {
             e.printStackTrace();
         }
+        ((ImageButton)view.findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if((markerList.size()-1) > (currentMarker)) {
+                    if(markerList.get(currentMarker).getPosition().latitude > 0) {
+                        markerList.get(currentMarker).showInfoWindow();
+                        map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
+                    }
+                    if(currentMarker < (markerList.size()-1))
+                        currentMarker++;
+                    Log.i("info"," + CURRENT MARKER " + Integer.toString(currentMarker));
+                }else {
+                    Log.i("info"," + NO MARKER");
+                }
+            }
+        });
+        ((ImageButton)view.findViewById(R.id.imageButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if((currentMarker) > 0 && (markerList.size() > 0)) {
+                    if (markerList.get(currentMarker).getPosition().latitude > 0){
+                        markerList.get(currentMarker).showInfoWindow();
+                        map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
+                    }
+                    if(currentMarker > 0)
+                        currentMarker--;
+                    Log.i("info"," - CURRENT MARKER " + Integer.toString(currentMarker));
+                }else {
+                    Log.i("info"," - NO MARKER");
+                }
+            }
+        });
         context = getActivity();
         return view;
     }

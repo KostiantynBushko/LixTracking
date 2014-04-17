@@ -17,6 +17,7 @@ import android.widget.SimpleAdapter;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.AboutActivity;
 import com.lixtracking.lt.activities.ChangePasswordActivity;
+import com.lixtracking.lt.activities.FunctionActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +54,12 @@ public class FragmentMore extends Fragment {
         item.put(ICON,R.drawable.ic_action_about_dark);
         listObjects.add(item);
 
+        item = new HashMap<String, Object>();
+        item.put(TITLE,"Function");
+        item.put(DESCRIPTION," functionality of application");
+        item.put(ICON,R.drawable.ic_action_view_as_grid_dark);
+        listObjects.add(item);
+
         SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.settings_item,
                 new String[]{ICON,TITLE,DESCRIPTION},
                 new int[]{R.id.icon,R.id.text1, R.id.textView});
@@ -70,6 +77,10 @@ public class FragmentMore extends Fragment {
                     case 1:
                         Intent intent1 = new Intent(getActivity(), AboutActivity.class);
                         startActivity(intent1);
+                        break;
+                    case 2:
+                        Intent intent2 = new Intent(getActivity(), FunctionActivity.class);
+                        startActivity(intent2);
                         break;
 
                 }

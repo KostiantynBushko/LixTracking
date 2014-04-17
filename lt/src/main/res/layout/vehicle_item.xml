@@ -81,7 +81,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_action_collapse_right"/>
+        android:src="@drawable/ic_action_collapse_right_dark"/>
 
     <TextView
         android:layout_width="wrap_content"

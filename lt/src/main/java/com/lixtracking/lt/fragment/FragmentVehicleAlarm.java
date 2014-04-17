@@ -200,7 +200,7 @@ public class FragmentVehicleAlarm extends Fragment {
             }
             if(VehicleDetailActivity.getCurrentFragmentTag() == VehicleDetailActivity.TAB_ALARM) {
                 if (listView.getAdapter() == null) {
-                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
+                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.alarm_item,
                             new String[]{ID, AlertData.ALERT_TYPE, AlertData.ALERT_TIME, AlertData.ALERT_MESSAGE},
                             new int[]{R.id.u_id, R.id.text1, R.id.text2, R.id.text3});
                     listView.setAdapter(adapter);

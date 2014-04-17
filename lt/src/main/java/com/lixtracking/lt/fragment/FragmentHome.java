@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -77,8 +78,16 @@ public class FragmentHome extends Fragment {
     //List of data
     ArrayList<HashMap<String, Object>> listObjects = null;
     private ListView listView;
-    List<VehicleData>vehicleDataList = null;
+    private SimpleAdapter adapter;
+    private List<VehicleData>vehicleDataList = null;
+    private List<VehicleData>vehicleCurrentDataList = null;
     private static boolean isRunning = false;
+
+    //State button
+    private enum State {
+        Offline,Online,All
+    };
+    private State currentButtonState = State.All;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,6 +105,7 @@ public class FragmentHome extends Fragment {
         toggleButton1 = (ToggleButton)view.findViewById(R.id.toggleButton1);
         toggleButton2 = (ToggleButton)view.findViewById(R.id.toggleButton2);
         toggleButton3 = (ToggleButton)view.findViewById(R.id.toggleButton3);
+
         toggleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,6 +113,11 @@ public class FragmentHome extends Fragment {
                 toggleButton3.setChecked(false);
                 if(toggleButton1.isChecked())
                     toggleButton1.setChecked(true);
+                currentButtonState = State.All;
+                updateSelectedListObjects(vehicleDataList);
+                toggleButton1.setTextColor(Color.parseColor("#ffffff"));
+                toggleButton2.setTextColor(Color.parseColor("#000000"));
+                toggleButton3.setTextColor(Color.parseColor("#000000"));
             }
         });
         toggleButton2.setOnClickListener(new View.OnClickListener() {
@@ -110,8 +125,13 @@ public class FragmentHome extends Fragment {
             public void onClick(View view) {
                 toggleButton1.setChecked(false);
                 toggleButton3.setChecked(false);
-                if(toggleButton2.isChecked())
+                if (toggleButton2.isChecked())
                     toggleButton2.setChecked(true);
+                currentButtonState = State.Online;
+                updateSelectedListObjects(vehicleDataList);
+                toggleButton2.setTextColor(Color.parseColor("#ffffff"));
+                toggleButton1.setTextColor(Color.parseColor("#000000"));
+                toggleButton3.setTextColor(Color.parseColor("#000000"));
             }
         });
         toggleButton3.setOnClickListener(new View.OnClickListener() {
@@ -121,9 +141,18 @@ public class FragmentHome extends Fragment {
                 toggleButton2.setChecked(false);
                 if(toggleButton3.isChecked())
                     toggleButton3.setChecked(true);
+                currentButtonState = State.Offline;
+                updateSelectedListObjects(vehicleDataList);
+                toggleButton3.setTextColor(Color.parseColor("#ffffff"));
+                toggleButton1.setTextColor(Color.parseColor("#000000"));
+                toggleButton2.setTextColor(Color.parseColor("#000000"));
             }
         });
+        currentButtonState = State.All;
         toggleButton1.setChecked(true);
+        toggleButton1.setTextColor(Color.parseColor("#ffffff"));
+        toggleButton2.setTextColor(Color.parseColor("#000000"));
+        toggleButton3.setTextColor(Color.parseColor("#000000"));
         return view;
     }
     @Override
@@ -136,12 +165,14 @@ public class FragmentHome extends Fragment {
                     new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            updtaeTabBarButton();
         }else {
             listView = (ListView)view.findViewById(R.id.listView);
             listView.setDivider(null);
             listView.setDividerHeight(5);
             new getVehiclesTask().execute();
         }
+
         listView.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -162,7 +193,6 @@ public class FragmentHome extends Fragment {
                 intent.putExtra(VehicleData.STOCK_NUMBER, data.stock_number);
                 intent.putExtra(VehicleData.YEAR, data.year);
                 intent.putExtra(VehicleData.STATUS, data.status);
-
                 startActivity(intent);
             }
         });
@@ -230,7 +260,6 @@ public class FragmentHome extends Fragment {
            }
        });*/
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
@@ -322,17 +351,16 @@ public class FragmentHome extends Fragment {
                 return;
             }
 
-            listObjects = new ArrayList<HashMap<String, Object>>();
+            //listObjects = new ArrayList<HashMap<String, Object>>();
             vehicleDataList = new ParceVehicles(context).parceXml(result);
 
             if(vehicleDataList != null && (!vehicleDataList.isEmpty())) {
-                all = vehicleDataList.size();
                 // pass reference to vehicle data list in to application
                 LixApplication.getInstance().setVehicleDataList(vehicleDataList);
 
                 MainActivity activity = (MainActivity)getActivity();
                 activity.vehicleDataListGlobal = vehicleDataList;
-
+                /*all = vehicleDataList.size();
                 for(int i = 0; i<vehicleDataList.size(); i++) {
                     VehicleData data = vehicleDataList.get(i);
                     HashMap<String, Object>item = new HashMap<String, Object>();
@@ -350,29 +378,87 @@ public class FragmentHome extends Fragment {
                         offline+=1;
                     }
                     listObjects.add(item);
-                }
-
+                }*/
                 // Update list vehicle
-                if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+                /*if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
                     SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
                             new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER,VIN, STATUS},
                             new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
                     listView.setAdapter(adapter);
                     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                    toggleButton1.setTextOff("All["+Integer.toString(all) + "]");
-                    toggleButton2.setTextOff("Online["+Integer.toString(online) + "]");
-                    toggleButton3.setTextOff("Offline["+Integer.toString(offline) + "]");
-                    toggleButton1.setTextOn("All["+Integer.toString(all) + "]");
-                    toggleButton2.setTextOn("Online["+Integer.toString(online) + "]");
-                    toggleButton3.setTextOn("Offline["+Integer.toString(offline) + "]");
-                    toggleButton1.invalidate();
-                    toggleButton2.invalidate();
-                    toggleButton2.invalidate();
-                }
+                    updtaeTabBarButton();
+                }*/
+                updateSelectedListObjects(vehicleDataList);
             }
             progressBar.setVisibility(View.INVISIBLE);
             isRunning = false;
         }
     }
     /**********************************************************************************************/
+    private void updateSelectedListObjects(List<VehicleData>objects) {
+        int value;
+        switch (currentButtonState) {
+            case All: value = 2; break;
+            case Online: value = 1; break;
+            case Offline: value = 0; break;
+            default: value = 2; break;
+        }
+        if(objects != null){
+            vehicleCurrentDataList = new ArrayList<VehicleData>();
+            all = objects.size();
+            online = 0;
+            offline = 0;
+            for (int i = 0; i<objects.size(); i++) {
+                if(objects.get(i).status == 1) {
+                    online+=1;
+                } else {
+                    offline+=1;
+                }
+            }
+            for (int i = 0; i<objects.size(); i++) {
+                if(currentButtonState == State.All) {
+                    vehicleCurrentDataList.add(objects.get(i));
+                } else if(objects.get(i).status == value) {
+                    vehicleCurrentDataList.add(objects.get(i));
+                }
+            }
+            listObjects = new ArrayList<HashMap<String, Object>>();
+            for(int i = 0; i<vehicleCurrentDataList.size(); i++) {
+                VehicleData data = vehicleCurrentDataList.get(i);
+                HashMap<String, Object>item = new HashMap<String, Object>();
+                item.put(ID,Integer.toString(i+1));
+                item.put(NAME, data.first_name + " " + data.last_name);
+                item.put(GPS_ID, "gps id : " + data.gps_id);
+                item.put(VIN,"VIN : " + data.vin);
+                item.put(STATUS,data.status == 1 ? "on" : "off");
+                item.put(STOCK_NUMBER, "stock number : " + data.stock_number);
+                if(data.status == 1) {
+                    item.put(ICON, R.drawable.car);
+                } else {
+                    item.put(ICON, R.drawable.car_na);
+                }
+                listObjects.add(item);
+            }
+            if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_HOME) {
+                adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
+                        new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER,VIN, STATUS},
+                        new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
+                listView.setAdapter(adapter);
+                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                listView.invalidateViews();
+                updtaeTabBarButton();
+            }
+        }
+    }
+    private void updtaeTabBarButton() {
+        toggleButton1.setTextOff("All ["+Integer.toString(all) + "]");
+        toggleButton2.setTextOff("Online ["+Integer.toString(online) + "]");
+        toggleButton3.setTextOff("Offline ["+Integer.toString(offline) + "]");
+        toggleButton1.setTextOn("All ["+Integer.toString(all) + "]");
+        toggleButton2.setTextOn("Online ["+Integer.toString(online) + "]");
+        toggleButton3.setTextOn("Offline ["+Integer.toString(offline) + "]");
+        toggleButton1.setText("All ["+Integer.toString(all) + "]");
+        toggleButton2.setText("Online ["+Integer.toString(online) + "]");
+        toggleButton3.setText("Offline ["+Integer.toString(offline) + "]");
+    }
 }

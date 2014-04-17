@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -44,6 +45,9 @@ public class FragmentHistory extends Fragment {
     String customFrom = null;
     String customTo = null;
 
+    EditText textViewFrom = null;
+    EditText textViewTo = null;
+
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
         view = layoutInflater.inflate(R.layout.fragment_history, container, false);
@@ -54,14 +58,31 @@ public class FragmentHistory extends Fragment {
         ((Button)view.findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
+                //HashMap<String, Object> item = listObjects.get(3);
+                String from = textViewFrom.getText().toString(); //item.get(FROM).toString();
+                String to = textViewTo.getText().toString(); //item.get(TO).toString();
+                Intent intent = new Intent(getActivity(), TrackingHistoryActivity.class);
+                intent.putExtra(VehicleData.VIN, vehicleData.vin);
+                intent.putExtra(VehicleData.GPS_ID, vehicleData.gps_id);
+                intent.putExtra(VehicleData.USER_ID, vehicleData.user_id);
+                intent.putExtra(VehicleData.FIRST_NAME, vehicleData.first_name);
+                intent.putExtra(VehicleData.LAST_NAME, vehicleData.last_name);
+                intent.putExtra(VehicleData.MAKE, vehicleData.make);
+                intent.putExtra(VehicleData.MODEL, vehicleData.model);
+                intent.putExtra(VehicleData.STOCK_NUMBER, vehicleData.stock_number);
+                intent.putExtra(VehicleData.YEAR, vehicleData.year);
+                intent.putExtra(VehicleData.STATUS, vehicleData.status);
+                intent.putExtra("FROM",from);
+                intent.putExtra("TO",to);
+                startActivity(intent);
+                /*Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
                 intent.putExtra("START",true);
                 intent.putExtra("FROM",customFrom);
                 intent.putExtra("TO",customTo);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, 1);*/
             }
         });
-        ((Button)view.findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
+        /*((Button)view.findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
@@ -69,6 +90,28 @@ public class FragmentHistory extends Fragment {
                 intent.putExtra("FROM",customFrom);
                 intent.putExtra("TO",customTo);
                 startActivityForResult(intent,2);
+            }
+        });*/
+        textViewFrom = (EditText)view.findViewById(R.id.editText);
+        textViewFrom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
+                intent.putExtra("START", true);
+                intent.putExtra("FROM", customFrom);
+                intent.putExtra("TO", customTo);
+                startActivityForResult(intent, 1);
+            }
+        });
+        textViewTo = (EditText)view.findViewById(R.id.editText2);
+        textViewTo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
+                intent.putExtra("END", true);
+                intent.putExtra("FROM", customFrom);
+                intent.putExtra("TO", customTo);
+                startActivityForResult(intent, 2);
             }
         });
 
@@ -113,11 +156,13 @@ public class FragmentHistory extends Fragment {
         customFrom = sharedPreferences.getString(FROM,fromDataePast);
         customTo = sharedPreferences.getString(TO,toDataePast);
 
-        item = new HashMap<String, Object>();
+        textViewFrom.setText(customFrom);
+        textViewTo.setText(customTo);
+        /*item = new HashMap<String, Object>();
         item.put(TITLE,"Custom date time");
         item.put(FROM, customFrom);
         item.put(TO, customTo);
-        listObjects.add(item);
+        listObjects.add(item);*/
 
         adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.select_history_item,
                 new String[]{TITLE,FROM,TO,},
@@ -171,7 +216,9 @@ public class FragmentHistory extends Fragment {
             sharedPreferences.edit().putString(TO,customTo).commit();
         }
 
-        listObjects.clear();
+        textViewFrom.setText(customFrom);
+        textViewTo.setText(customTo);
+        /*listObjects.clear();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         Calendar c = GregorianCalendar.getInstance();
         int y = c.get(Calendar.YEAR);
@@ -206,14 +253,14 @@ public class FragmentHistory extends Fragment {
         item.put(TITLE,"Past three day");
         item.put(FROM, fromDataePast);
         item.put(TO, toDataePast);
-        listObjects.add(item);
+        listObjects.add(item);*/
 
-        item = new HashMap<String, Object>();
+        /*item = new HashMap<String, Object>();
         item.put(TITLE,"Custom date time");
         item.put(FROM, customFrom);
         item.put(TO, customTo);
-        listObjects.add(item);
+        listObjects.add(item);*/
 
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
     }
 }

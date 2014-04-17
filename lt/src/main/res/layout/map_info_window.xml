@@ -60,7 +60,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_action_collapse_right"/>
+            android:background="@drawable/ic_action_collapse_right_dark"/>
 
     </RelativeLayout>
 

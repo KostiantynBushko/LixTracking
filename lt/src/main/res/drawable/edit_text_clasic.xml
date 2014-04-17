@@ -8,7 +8,7 @@
             <solid android:color="#FFFFF0" />
             <stroke
                 android:width="2dp"
-                android:color="#99CCFF"
+                android:color="#ffbdbdbd"
                 android:alpha="0.5"/>
             
             <padding
@@ -28,7 +28,7 @@
             <solid android:color="#FFFFF0" />
             <stroke
                 android:width="3dp"
-                android:color="#99CCFF"
+                android:color="#ffbdbdbd"
                 android:alpha="0.5"/>
             
             <padding
@@ -47,7 +47,7 @@
             <solid android:color="#FFFFF0" />
             <stroke
                 android:width="2dp"
-                android:color="#99CCFF"
+                android:color="#ffbdbdbd"
                 android:alpha="0.5"/>
             
             <padding

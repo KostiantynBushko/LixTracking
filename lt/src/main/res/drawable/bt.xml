@@ -4,5 +4,5 @@
         android:state_pressed="true" />
     <item android:drawable="@drawable/ic_action_web_site"
         android:state_focused="true" />
-    <item android:drawable="@drawable/ic_action_collapse_right" />
+    <item android:drawable="@drawable/ic_action_collapse_right_dark" />
 </selector>

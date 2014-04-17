@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_gray" >
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dark_gray">
-
-    <TextView
-        android:layout_width="400dp"
+    <ProgressBar android:id="@+id/loading_spinner"
+        style="?android:progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Alert"
-        android:id="@+id/textView"
-        android:gravity="center"/>
-</LinearLayout>
+        android:layout_gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+
+</RelativeLayout>

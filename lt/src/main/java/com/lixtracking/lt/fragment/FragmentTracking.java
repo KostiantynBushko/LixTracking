@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -67,7 +68,6 @@ public class FragmentTracking extends Fragment {
     VehicleData vehicleData = null;
     List<GpsData> gpsDatas = null;
     GpsData firstActive = null;
-    List<Marker>markerList = new ArrayList<Marker>();
     Timer timer;
 
     private boolean updateIsRunning = false;
@@ -125,6 +125,8 @@ public class FragmentTracking extends Fragment {
         } catch (InflateException e) {
             e.printStackTrace();
         }
+        ((ImageButton)view.findViewById(R.id.imageButton)).setVisibility(View.INVISIBLE);
+        ((ImageButton)view.findViewById(R.id.imageButton2)).setVisibility(View.INVISIBLE);
         context = getActivity();
         return view;
     }

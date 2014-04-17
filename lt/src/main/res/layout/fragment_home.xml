@@ -22,8 +22,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginRight="2dp"
         android:layout_marginLeft="2dp"
-        android:layout_below="@+id/relativeLayout"
-        android:layout_marginTop="2dp"/>
+        android:layout_below="@+id/relativeLayout"/>
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -44,21 +43,24 @@
                 android:textOff="All"
                 android:textOn="All"
                 android:layout_width="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:background="@drawable/tab_all_state_btn"/>
             <ToggleButton
                 android:id="@+id/toggleButton2"
                 android:layout_height="fill_parent"
                 android:layout_width="wrap_content"
                 android:layout_weight="1"
                 android:textOff="Online"
-                android:textOn="Online"/>
+                android:textOn="Online"
+                android:background="@drawable/tab_all_state_btn"/>
             <ToggleButton
                 android:id="@+id/toggleButton3"
                 android:layout_height="fill_parent"
                 android:layout_width="wrap_content"
                 android:layout_weight="1"
                 android:textOff="Offline"
-                android:textOn="Offline"/>
+                android:textOn="Offline"
+                android:background="@drawable/tab_all_state_btn"/>
         </LinearLayout>
 
         </RelativeLayout>
