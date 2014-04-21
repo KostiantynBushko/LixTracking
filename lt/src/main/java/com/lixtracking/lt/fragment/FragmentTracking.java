@@ -194,6 +194,7 @@ public class FragmentTracking extends Fragment {
         realTimeGpsData.cancel(true);
         timer.cancel();
         timer = null;
+        updateIsRunning = false;
     }
     /**********************************************************************************************/
     /* MENU */
