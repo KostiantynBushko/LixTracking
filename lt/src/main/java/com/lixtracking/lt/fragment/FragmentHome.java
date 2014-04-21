@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -69,6 +70,7 @@ public class FragmentHome extends Fragment {
     private ToggleButton toggleButton2;
     private ToggleButton toggleButton3;
 
+
     int online = 0;
     int offline = 0;
     int all = 0;
@@ -79,6 +81,7 @@ public class FragmentHome extends Fragment {
     //List of data
     ArrayList<HashMap<String, Object>> listObjects = null;
     private ListView listView;
+    private static int listViewCurrentPosition = 0;
     private SimpleAdapter adapter;
     private List<VehicleData>vehicleDataList = null;
     private List<VehicleData>vehicleCurrentDataList = null;
@@ -161,13 +164,16 @@ public class FragmentHome extends Fragment {
         super.onResume();
         Log.i("info"," RESUME: FragmentHome");
         if(listObjects != null){
+            Log.i("info"," RESUME: FragmentHome : current position = " + Integer.toString(listViewCurrentPosition));
             SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.vehicle_item,
                     new String[]{ICON,ID,NAME,GPS_ID,STOCK_NUMBER,VIN, STATUS},
                     new int[]{R.id.icon,R.id.u_id, R.id.text1, R.id.text2,R.id.text3, R.id.text4, R.id.text5});
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            listView.setSelection(listViewCurrentPosition);
             updtaeTabBarButton();
         }else {
+            Log.i("info"," RESUME: FIRTST START FragmentHome : current position = " + Integer.toString(listViewCurrentPosition));
             listView = (ListView)view.findViewById(R.id.listView);
             listView.setDivider(null);
             listView.setDividerHeight(5);
@@ -179,6 +185,7 @@ public class FragmentHome extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int item, long l) {
                 Log.i("info"," list item : " + Integer.toString(item));
+                //listViewCurrentPosition = item;
                 String vin = ((TextView)view.findViewById(R.id.text4)).getText().toString();
                 vin = vin.substring(6);
                 VehicleData data = null;
@@ -187,7 +194,6 @@ public class FragmentHome extends Fragment {
                     if(data.vin.equals(vin))
                         break;
                 }
-
                 Log.i("info"," vin    : " + data.vin);
                 Log.i("info"," gps id : " + data.gps_id);
                 if(data != null) {
@@ -204,6 +210,14 @@ public class FragmentHome extends Fragment {
                     intent.putExtra(VehicleData.STATUS, data.status);
                     startActivity(intent);
                 }
+            }
+        });
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {}
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+                listViewCurrentPosition = i;
             }
         });
     }

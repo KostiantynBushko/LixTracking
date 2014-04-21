@@ -2,6 +2,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
      <!--<item android:drawable="@drawable/tab_bg_selected"/>-->
      <item>
-        <bitmap android:src="@drawable/ic_action_map" android:gravity="center" />
+        <bitmap android:src="@drawable/ic_action_map_dark" android:gravity="center" />
     </item>
 </layer-list>

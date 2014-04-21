@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.AlertMapActivity;
-import com.lixtracking.lt.activities.VehicleDetailActivity;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.AlertData;
 import com.lixtracking.lt.parsers.ParseAlertList;
@@ -160,7 +159,7 @@ public class FragmentAlarm extends Fragment{
         @Override
         protected void onPostExecute(String result) {
             if(result == null) {
-                if(((VehicleDetailActivity)getActivity()).getCurrentFragmentTag() == VehicleDetailActivity.TAB_ALARM) {
+                if(((MainActivity)getActivity()).getCurrentFragmentTag() == MainActivity.TAB_ALARM) {
                     result = "Error connection";
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Mesage");

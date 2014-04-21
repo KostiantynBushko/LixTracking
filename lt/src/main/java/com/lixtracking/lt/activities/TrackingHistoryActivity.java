@@ -350,7 +350,7 @@ public class TrackingHistoryActivity extends FragmentActivity implements View.On
                             .title(" Start")
                             .snippet("Lat " + Double.toString(firstPoint.latitude) + " Lng : " + Double.toString(firstPoint.longitude)));
                     currentMarker = map.addMarker(new MarkerOptions()
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
                             .position(gpsPoints.get(currentIndex))
                             .title(" Finish")
                             .snippet("Lat " + Double.toString(gpsPoints.get(currentIndex).latitude)
