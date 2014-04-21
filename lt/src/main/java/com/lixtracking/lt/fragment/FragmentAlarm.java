@@ -13,23 +13,23 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.AlertMapActivity;
 import com.lixtracking.lt.activities.VehicleDetailActivity;
-import com.lixtracking.lt.adapters.ExpandableListAdapter;
-import com.lixtracking.lt.common.LixApplication;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.AlertData;
-import com.lixtracking.lt.data_class.VehicleData;
 import com.lixtracking.lt.parsers.ParseAlertList;
 
 import org.apache.http.HttpEntity;
@@ -50,126 +50,73 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class FragmentAlarm extends Fragment{
-    ExpandableListAdapter listAdapter;
-    ExpandableListView expListView;
-    List<String> listDataHeader;
-    HashMap<String, List<String>> listDataChild;
     private static final String ALERT_TIME = "alert_time";
     private static final String GPS_ID = "gps_id";
     private static final String ALERT_ID = "alert_id";
     private static final String ID = "id";
 
-    private AsyncTask alertDataListTask = null;
-
+    private View view;
     private Context context;
     private ArrayList<HashMap<String, Object>> listObjects = null;
     private ListView listView;
     List<AlertData>alertDataList = null;
+    //VehicleData vehicleData = null;
+    AsyncTask task = null;
     ProgressBar progressBar = null;
     TextView message = null;
     private boolean isRunning = false;
-    int current = 0;
-    int max = 0;
 
-    Timer timer;
-
-    private List<VehicleData>vehicleDataList = null;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
-        View view = layoutInflater.inflate(R.layout.fragment_alarm, container, false);
-        /*expListView = (ExpandableListView)view.findViewById(R.id.lvExp);
-        prepareListData();
-        listAdapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
-        // setting list adapter
-        expListView.setAdapter(listAdapter);*/
+        view = layoutInflater.inflate(R.layout.fragment_vehicle_alarm, container, false);
         progressBar = (ProgressBar)view.findViewById(R.id.loading_spinner);
-        vehicleDataList = LixApplication.getInstance().getVehicleDataList();
-        max = vehicleDataList.size();
+        message = (TextView)view.findViewById(R.id.textView);
+        listView = (ListView)view.findViewById(R.id.listView);
         return view;
     }
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-
-        // Adding child data
-        listDataHeader.add("Top 250");
-        listDataHeader.add("Now Showing");
-        listDataHeader.add("Coming Soon..");
-
-        // Adding child data
-        List<String> top250 = new ArrayList<String>();
-        top250.add("The Shawshank Redemption");
-        top250.add("The Godfather");
-        top250.add("The Godfather: Part II");
-        top250.add("Pulp Fiction");
-        top250.add("The Good, the Bad and the Ugly");
-        top250.add("The Dark Knight");
-        top250.add("12 Angry Men");
-
-        List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("The Conjuring");
-        nowShowing.add("Despicable Me 2");
-        nowShowing.add("Turbo");
-        nowShowing.add("Grown Ups 2");
-        nowShowing.add("Red 2");
-        nowShowing.add("The Wolverine");
-
-        List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("2 Guns");
-        comingSoon.add("The Smurfs 2");
-        comingSoon.add("The Spectacular Now");
-        comingSoon.add("The Canyons");
-        comingSoon.add("Europa Report");
-
-        listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), nowShowing);
-        listDataChild.put(listDataHeader.get(2), comingSoon);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        listObjects = new ArrayList<HashMap<String, Object>>();
-        timer = new Timer();
-        TimerTask timerTask = new Task();
-        timer.scheduleAtFixedRate(timerTask, 1, 2500);
-    }
-    /**********************************************************************************************/
-    /* Tracking task */
-    /**********************************************************************************************/
-    class Task extends TimerTask {
-        @Override
-        public void run() {
-            if(isRunning == false){
-                if(vehicleDataList != null)
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            alertDataListTask = new getAlertDataListTask().execute();
-                            current++;
-                            if (current == max) {
-                                timer.cancel();
-                                updateList();
-                                progressBar.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    });
-            }
+        //vehicleData = ((VehicleDetailActivity)getActivity()).vehicleData;
+        if(listObjects == null) {
+            task = new getAlertDataListTask().execute();
+        }else {
+            updateList();
         }
     }
     @Override
     public void onPause() {
         super.onPause();
-        alertDataListTask.cancel(true);
-        timer.cancel();
-        timer = null;
+        task.cancel(true);
     }
-
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_alert,menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                if (!isRunning) {
+                    listView.setAdapter(null);
+                    message.setVisibility(View.INVISIBLE);
+                    alertDataList = null;
+                    progressBar.setVisibility(View.INVISIBLE);
+                    new getAlertDataListTask().execute();
+                }
+                break;
+        }
+        return true;
+    }
     /**********************************************************************************************/
     /**/
     /**********************************************************************************************/
@@ -190,15 +137,11 @@ public class FragmentAlarm extends Fragment{
             HttpPost httpPost = new HttpPost(URL.GetAlertListLimitedUrl);
 
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-            List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(4);
-            nameValuePairList.add(new BasicNameValuePair("user_id", vehicleDataList.get(current).user_id));
-            nameValuePairList.add(new BasicNameValuePair("gps_id", vehicleDataList.get(current).gps_id));
+            List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(3);
+            nameValuePairList.add(new BasicNameValuePair("user_id", "admin"));
+            nameValuePairList.add(new BasicNameValuePair("gps_id", ""));
             nameValuePairList.add(new BasicNameValuePair("start", "0"));
-            nameValuePairList.add(new BasicNameValuePair("limit", "1"));
-            Log.i("info","-----------------------------------------------------------------------");
-            Log.i("info", "user id : " + vehicleDataList.get(current).user_id);
-            Log.i("info","gps id  : " + vehicleDataList.get(current).gps_id);
-            Log.i("info","-----------------------------------------------------------------------");
+            nameValuePairList.add(new BasicNameValuePair("limit", "500"));
 
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairList));
@@ -242,54 +185,77 @@ public class FragmentAlarm extends Fragment{
             listObjects = new ArrayList<HashMap<String, Object>>();
             alertDataList = new ParseAlertList().parceXml(result);
             if(alertDataList.size() == 0) {
-                //progressBar.setVisibility(View.GONE);
-                //message.setVisibility(View.VISIBLE);
-                isRunning = false;
+                progressBar.setVisibility(View.INVISIBLE);
+                message.setVisibility(View.VISIBLE);
                 alertDataList = null;
+                isRunning = false;
                 return;
             }
-            //message.setVisibility(View.INVISIBLE);
+            message.setVisibility(View.INVISIBLE);
             for(int i = 0; i<alertDataList.size(); i++) {
                 AlertData data = alertDataList.get(i);
-                String date = data.alert_time.substring(0,4) + "-" + data.alert_time.substring(4,6) + "-"
+                String date = data.alert_time.substring(0,4) + "/" + data.alert_time.substring(4,6) + "/"
                         + data.alert_time.substring(6,8) +" "
-                        + data.alert_time.substring(8,10) +"-"
-                        + data.alert_time.substring(10,12) +"-"
+                        + data.alert_time.substring(8,10) +":"
+                        + data.alert_time.substring(10,12) +":"
                         + data.alert_time.substring(12,14);
                 HashMap<String, Object>item = new HashMap<String, Object>();
                 item.put(ID,Integer.toString(i+1));
                 item.put(AlertData.ALERT_ID, data.alert_id);
                 item.put(AlertData.USER_ID, data.user_id);
                 item.put(AlertData.ALERT_TIME, date);
-                item.put(AlertData.ALERT_TYPE, data.alert_type);
+                item.put(AlertData.ALERT_TYPE, data.gps_id);
                 item.put(AlertData.ALERT_MESSAGE, data.alert_message);
                 listObjects.add(item);
             }
-            //progressBar.setVisibility(View.INVISIBLE);
+            /*if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_ALARM) {
+                if (listView.getAdapter() == null) {
+                    SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.alarm_item,
+                            new String[]{ID, AlertData.ALERT_TYPE, AlertData.ALERT_TIME, AlertData.ALERT_MESSAGE},
+                            new int[]{R.id.u_id, R.id.text1, R.id.text2, R.id.text3});
+                    listView.setAdapter(adapter);
+                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i("info"," Item = " + Integer.toString(i));
+                            Intent intent = new Intent(getActivity(), AlertMapActivity.class);
+                            intent.putExtra(ALERT_TIME,alertDataList.get(i).alert_time);
+                            intent.putExtra(GPS_ID,alertDataList.get(i).gps_id);
+                            intent.putExtra(ALERT_ID,alertDataList.get(i).alert_id);
+                            startActivity(intent);
+                        }
+                    });
+                }else {
+                    BaseAdapter adapter = (BaseAdapter)listView.getAdapter();
+                    adapter.notifyDataSetChanged();
+                }
+            }*/
+            updateList();
+            progressBar.setVisibility(View.INVISIBLE);
             isRunning = false;
         }
     }
     private void updateList() {
-        progressBar.setVisibility(View.GONE);
-        if(VehicleDetailActivity.getCurrentFragmentTag() == VehicleDetailActivity.TAB_ALARM) {
-            if (listView.getAdapter() == null) {
-                SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects, R.layout.alarm_item,
-                        new String[]{ID, AlertData.ALERT_TYPE, AlertData.ALERT_TIME, AlertData.ALERT_MESSAGE},
-                        new int[]{R.id.u_id, R.id.text1, R.id.text2, R.id.text3});
-                listView.setAdapter(adapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        Log.i("info", " Item = " + Integer.toString(i));
-                        Intent intent = new Intent(getActivity(), AlertMapActivity.class);
-                        intent.putExtra(ALERT_TIME, alertDataList.get(i).alert_time);
-                        intent.putExtra(GPS_ID, alertDataList.get(i).gps_id);
-                        intent.putExtra(ALERT_ID, alertDataList.get(i).alert_id);
-                        startActivity(intent);
-                    }
-                });
-            }
+        if(MainActivity.getCurrentFragmentTag() == MainActivity.TAB_ALARM) {
+            listView.setAdapter(null);
+            Log.i("info"," update list alert");
+            SimpleAdapter adapter = new SimpleAdapter(getActivity(), listObjects ,R.layout.alarm_item,
+                    new String[]{ID, AlertData.ALERT_TYPE, AlertData.ALERT_TIME, AlertData.ALERT_MESSAGE},
+                    new int[]{R.id.u_id, R.id.text1, R.id.text2, R.id.text3});
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Log.i("info"," Item = " + Integer.toString(i));
+                    Intent intent = new Intent(getActivity(), AlertMapActivity.class);
+                    intent.putExtra(ALERT_TIME,alertDataList.get(i).alert_time);
+                    intent.putExtra(GPS_ID,alertDataList.get(i).gps_id);
+                    intent.putExtra(ALERT_ID,alertDataList.get(i).alert_id);
+                    startActivity(intent);
+                }
+            });
         }
     }
 }

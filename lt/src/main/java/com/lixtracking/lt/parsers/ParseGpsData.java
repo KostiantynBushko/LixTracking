@@ -58,6 +58,14 @@ public class ParseGpsData {
                         if(xpp.getName().equals(GpsData.GPS_DATA_TAG)) {
                             if(gpsDataList == null)
                                 gpsDataList = new ArrayList<GpsData>();
+                            double _lat = Double.parseDouble(gpsData.lat);
+                            double _lng = Double.parseDouble(gpsData.lng);
+                            int lngFlag = gpsData.west_lon > 0 ? -1 : 1;
+                            int latFlag = gpsData.north_lat > 0 ? 1 : -1;
+                            _lat = latFlag * _lat;
+                            _lng = lngFlag * _lng;
+                            gpsData.lat = Double.toString(_lat);
+                            gpsData.lng = Double.toString(_lng);
                             gpsDataList.add(gpsData);
                         }
                         break;

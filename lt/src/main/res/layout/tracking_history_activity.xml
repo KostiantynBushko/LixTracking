@@ -7,7 +7,7 @@
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.google.android.gms.maps.MapFragment"/>
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
     <ProgressBar android:id="@+id/loading_spinner"
         style="?android:progressBarStyleLarge"
@@ -26,7 +26,7 @@
         android:background="#FFFFFF"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
-        android:alpha="0.5">
+        android:alpha="0.7">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:layout_toLeftOf="@+id/imageButton"
             android:layout_toRightOf="@+id/textView"
             android:layout_marginLeft="14dp"
-            android:textColor="@color/dark_gray"/>
+            android:textColor="@color/text_label"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
             android:layout_alignEnd="@+id/textView1"
             android:layout_alignLeft="@+id/textView1"
             android:layout_alignStart="@+id/textView1"
-            android:textColor="@color/dark_gray"/>
+            android:textColor="@color/text_label"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
             android:layout_alignEnd="@+id/textView2"
             android:layout_alignLeft="@+id/textView2"
             android:layout_alignStart="@+id/textView2"
-            android:textColor="@color/dark_gray"/>
+            android:textColor="@color/text_label"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:layout_alignEnd="@+id/textView3"
             android:layout_alignLeft="@+id/textView3"
             android:layout_alignStart="@+id/textView3"
-            android:textColor="@color/dark_gray"/>
+            android:textColor="@color/text_label"/>
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -145,7 +145,8 @@
             android:layout_below="@+id/tableLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:weightSum="3">
+            android:weightSum="3"
+            android:background="@color/titlebackgroundcolor">
             <ImageButton
                 android:id="@+id/button_previous"
                 android:layout_height="fill_parent"
@@ -178,6 +179,6 @@
         android:id="@+id/textView8"
         android:layout_above="@+id/relativeLayout"
         android:layout_centerHorizontal="true"
-        android:textColor="@color/dark_gray"/>
+        android:textColor="@color/text_label"/>
 
 </RelativeLayout>

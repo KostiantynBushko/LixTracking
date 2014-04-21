@@ -36,13 +36,13 @@ public class SetCustomDateTime extends Activity implements DatePicker.OnDateChan
             String y = from.substring(0,4);
             String m = from.substring(5,7);
             String d = from.substring(8,10);
-            Log.i("info","DATE : " + y  + "-" + m + "-" + d);
+            Log.i("info","DATE : " + y  + "/" + m + "/ " + d);
             datePicker.init(Integer.parseInt(y), Integer.parseInt(m) - 1, Integer.parseInt(d), this);
         }else if(intent.getBooleanExtra("END",false)) {
             String y = to.substring(0,4);
             String m = to.substring(5,7);
             String d = to.substring(8,10);
-            Log.i("info","DATE : " + y  + "-" + m + "-" + d);
+            Log.i("info","DATE : " + y  + "/" + m + "/" + d);
             datePicker.init(Integer.parseInt(y),Integer.parseInt(m)-1,Integer.parseInt(d),this);
         }
 
@@ -75,7 +75,7 @@ public class SetCustomDateTime extends Activity implements DatePicker.OnDateChan
                 }
                 String second = "00";
 
-                String result = year + "-" + month + "-" + day + " " + hour + "-" + minute + "-" + second;
+                String result = year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
                 intent.putExtra("DATE_TIME",result);
                 setResult(RESULT_OK,intent);
                 finish();

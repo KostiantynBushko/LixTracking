@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Search, should appear as action button -->
+    <item android:id="@+id/action_map"
+        android:title="Map"
+        android:showAsAction="ifRoom" />
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/action_map_satellite"
+        android:title="Satellite"
+        android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_speed"
+        android:title="Speed"
+        android:showAsAction="never" />
+</menu>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberPicker"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/topLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="4dip"
+        android:background="@drawable/separate_line" />
+
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dip">
+
+        <Button
+            android:id="@+id/negativeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="6dip"
+            android:layout_toLeftOf="@+id/textView5"
+            android:text="Cancel"
+            android:textColor="#FFFFFFFF"
+            android:background="@drawable/gradient_button"/>
+
+        <Button
+            android:id="@+id/positiveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="6dip"
+            android:layout_toRightOf="@+id/textView5"
+            android:textColor="#FFFFFFFF"
+            android:background="@drawable/dialog_positive_button"
+            android:text="Set"/>
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text=" " />
+    </RelativeLayout>
+
+</LinearLayout>

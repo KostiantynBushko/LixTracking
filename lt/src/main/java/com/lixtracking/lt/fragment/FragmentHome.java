@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.lixtracking.lt.MainActivity;
@@ -178,22 +179,31 @@ public class FragmentHome extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int item, long l) {
                 Log.i("info"," list item : " + Integer.toString(item));
-                VehicleData data = vehicleDataList.get(item);
+                String vin = ((TextView)view.findViewById(R.id.text4)).getText().toString();
+                vin = vin.substring(6);
+                VehicleData data = null;
+                for (int i = 0; i<vehicleDataList.size(); i++) {
+                    data = vehicleDataList.get(i);
+                    if(data.vin.equals(vin))
+                        break;
+                }
+
                 Log.i("info"," vin    : " + data.vin);
                 Log.i("info"," gps id : " + data.gps_id);
-
-                Intent intent = new Intent(context,VehicleDetailActivity.class);
-                intent.putExtra(VehicleData.VIN, data.vin);
-                intent.putExtra(VehicleData.GPS_ID, data.gps_id);
-                intent.putExtra(VehicleData.USER_ID, data.user_id);
-                intent.putExtra(VehicleData.FIRST_NAME, data.first_name);
-                intent.putExtra(VehicleData.LAST_NAME, data.last_name);
-                intent.putExtra(VehicleData.MAKE, data.make);
-                intent.putExtra(VehicleData.MODEL, data.model);
-                intent.putExtra(VehicleData.STOCK_NUMBER, data.stock_number);
-                intent.putExtra(VehicleData.YEAR, data.year);
-                intent.putExtra(VehicleData.STATUS, data.status);
-                startActivity(intent);
+                if(data != null) {
+                    Intent intent = new Intent(context,VehicleDetailActivity.class);
+                    intent.putExtra(VehicleData.VIN, data.vin);
+                    intent.putExtra(VehicleData.GPS_ID, data.gps_id);
+                    intent.putExtra(VehicleData.USER_ID, data.user_id);
+                    intent.putExtra(VehicleData.FIRST_NAME, data.first_name);
+                    intent.putExtra(VehicleData.LAST_NAME, data.last_name);
+                    intent.putExtra(VehicleData.MAKE, data.make);
+                    intent.putExtra(VehicleData.MODEL, data.model);
+                    intent.putExtra(VehicleData.STOCK_NUMBER, data.stock_number);
+                    intent.putExtra(VehicleData.YEAR, data.year);
+                    intent.putExtra(VehicleData.STATUS, data.status);
+                    startActivity(intent);
+                }
             }
         });
     }

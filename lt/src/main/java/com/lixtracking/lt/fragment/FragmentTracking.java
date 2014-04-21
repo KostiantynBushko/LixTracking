@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,13 +23,18 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.VehicleDetailActivity;
 import com.lixtracking.lt.activities.VehicleDetailInfoActivity;
+import com.lixtracking.lt.common.Constant;
+import com.lixtracking.lt.common.MapHelper;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.data_class.VehicleData;
@@ -64,10 +70,13 @@ public class FragmentTracking extends Fragment {
     private AsyncTask realTimeGpsData = null;
 
     private GoogleMap map = null;
+    private LatLng lastLatLng = null;
+    private float currentZoom = Constant.mapZoom;
+    private PolylineOptions polylineOptions = new PolylineOptions();
+
     View view = null;
     VehicleData vehicleData = null;
     List<GpsData> gpsDatas = null;
-    GpsData firstActive = null;
     Timer timer;
 
     private boolean updateIsRunning = false;
@@ -103,6 +112,18 @@ public class FragmentTracking extends Fragment {
                         .findFragmentById(R.id.map)).getMap();
                 if(map != null) {
                     map.setMapType(map_type);
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(Constant.baseLatLng, currentZoom));
+                    UiSettings uiSettings = map.getUiSettings();
+                    uiSettings.setMyLocationButtonEnabled(true);
+                    map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                        @Override
+                        public boolean onMyLocationButtonClick() {
+                            if(lastLatLng != null) {
+                                map.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng,currentZoom));
+                            }
+                            return false;
+                        }
+                    });
                     map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                         @Override
                         public void onInfoWindowClick(Marker marker) {
@@ -118,6 +139,12 @@ public class FragmentTracking extends Fragment {
                             intent.putExtra(VehicleData.STATUS,vehicleData.status);
                             intent.putExtra(VehicleData.YEAR,vehicleData.year);
                             getActivity().startActivity(intent);
+                        }
+                    });
+                    map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                        @Override
+                        public void onCameraChange(CameraPosition cameraPosition) {
+                            currentZoom = cameraPosition.zoom;
                         }
                     });
                 }
@@ -137,7 +164,7 @@ public class FragmentTracking extends Fragment {
         super.onResume();
         timer = new Timer();
         TimerTask timerTask = new Task();
-        timer.scheduleAtFixedRate(timerTask, 1, 1500);
+        timer.scheduleAtFixedRate(timerTask, 1, 8000);
     }
     /**********************************************************************************************/
     /* Tracking task */
@@ -200,7 +227,7 @@ public class FragmentTracking extends Fragment {
         protected String doInBackground(String... params) {
             updateIsRunning = true;
             //index = params[1];
-            Log.i("info", " START: getVehiclesTask");
+            Log.i("info", " START: getRealTimeGpsData");
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
             HttpConnectionParams.setSoTimeout(httpParams, 5000);
@@ -242,44 +269,73 @@ public class FragmentTracking extends Fragment {
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }else {
-                Log.i("info","--------------------------------------------------------------------");
+                /*Log.i("info","--------------------------------------------------------------------");
                 Log.i("info","result : " + resultString);
-                Log.i("info","--------------------------------------------------------------------");
+                Log.i("info","--------------------------------------------------------------------");*/
                 List<GpsData> tmpDatas = new ParseGpsData(context).parceXml(resultString);
                 if((tmpDatas != null) && (!tmpDatas.isEmpty())) {
                     gpsDatas = tmpDatas;
                     if(map != null) {
-                        float lat = Float.parseFloat(gpsDatas.get(0).lat);
-                        float lng = Float.parseFloat(gpsDatas.get(0).lng);
-
+                        Double lat = Double.parseDouble(gpsDatas.get(0).lat);
+                        Double lng = Double.parseDouble(gpsDatas.get(0).lng);
+                        /*Log.i("info","lng : " + gpsDatas.get(0).lng);
+                        Log.i("info","lat : " + gpsDatas.get(0).lat);
+                        Log.i("info","time : " + gpsDatas.get(0).lat);
+                        Log.i("info","-----------------------------------------------------------");*/
                         if(lat != 0.0f && lng != 0.0f) {
-                            LatLng latLon = new LatLng(lat,lng);
+                            LatLng currentLatLon = new LatLng(lat,lng);
                             boolean isShow = false;
                             if((marker != null) && marker.isInfoWindowShown()){
                                 isShow = true;
                             }
-                            map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
+                            map.clear();
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), currentZoom));
 
-                            int r = R.drawable.marker_car_gray;
-                            if(vehicleData.status == 1) {
-                                r = R.drawable.marker_car;
+                            if(lastLatLng != null) {
+                                double distance = MapHelper.distance(currentLatLon.latitude, currentLatLon.longitude,
+                                        lastLatLng.latitude, lastLatLng.longitude, "K");
+                                Log.i("info"," Distance =  " + Float.toString((float)(distance)));
+                                if((distance * 1000) > 15) {
+                                    Log.i("info"," Add new point ");
+                                    Log.i("info","--------------------------------------------------------------------");
+                                    polylineOptions.color(Color.argb(255, 255, 0, 0));
+                                    polylineOptions.width(8);
+                                    polylineOptions.add(currentLatLon);
+                                }else {
+                                    Log.i("info","--------------------------------------------------------------------");
+                                }
                             }
-                            if(marker == null) {
+
+                            map.addPolyline(polylineOptions);
+
+                            //int r = R.drawable.marker_car_gray;
+                            int r = vehicleData.status == 1 ? R.drawable.marker_car : R.drawable.marker_car_gray;
+                            /*if(vehicleData.status == 1) {
+                                r = R.drawable.marker_car;
+                            }*/
+                            marker = map.addMarker(new MarkerOptions()
+                                    .position(currentLatLon)
+                                    .title(" VIN : " + vehicleData.vin)
+                                    .icon(BitmapDescriptorFactory.fromResource(r))
+                                    .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
+
+                            /*if(marker == null) {
                                 marker = map.addMarker(new MarkerOptions()
                                                 .position(latLon)
                                                 .title(" VIN : " + vehicleData.vin)
                                                 .icon(BitmapDescriptorFactory.fromResource(r))
-                                                .snippet("speed : " + gpsDatas.get(0).speed)
+                                                .snippet("speed : " + gpsDatas.get(0).speed  + " km/h")
                                 );
                             } else {
                                 marker.setPosition(latLon);
                                 marker.setTitle(" VIN : " + vehicleData.vin);
-                                marker.setSnippet("speed : " + gpsDatas.get(0).speed);
+                                marker.setSnippet("speed : " + gpsDatas.get(0).speed  + " km/h");
                                 marker.setIcon(BitmapDescriptorFactory.fromResource(r));
                                 if(isShow){
                                     marker.showInfoWindow();
                                 }
-                            }
+                            }*/
+                            lastLatLng = currentLatLon;
                         }
                     }
                 }

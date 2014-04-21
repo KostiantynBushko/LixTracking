@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:text="Rihanna Love the way lie"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/light_blue"
+        android:textColor="@color/text_label"
         android:textSize="20dip"
         android:textStyle="bold"
         android:typeface="sans"
@@ -55,6 +55,6 @@
         android:layout_alignStart="@+id/text1"
         android:layout_alignRight="@+id/text1"
         android:layout_alignEnd="@+id/text1"
-        android:textColor="@color/dark_gray"/>
+        android:textColor="@color/text_label"/>
 
 </RelativeLayout>

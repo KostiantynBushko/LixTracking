@@ -184,10 +184,10 @@ public class FragmentVehicleAlarm extends Fragment {
             message.setVisibility(View.INVISIBLE);
             for(int i = 0; i<alertDataList.size(); i++) {
                 AlertData data = alertDataList.get(i);
-                String date = data.alert_time.substring(0,4) + "-" + data.alert_time.substring(4,6) + "-"
+                String date = data.alert_time.substring(0,4) + "/" + data.alert_time.substring(4,6) + "/"
                         + data.alert_time.substring(6,8) +" "
-                        + data.alert_time.substring(8,10) +"-"
-                        + data.alert_time.substring(10,12) +"-"
+                        + data.alert_time.substring(8,10) +":"
+                        + data.alert_time.substring(10,12) +":"
                         + data.alert_time.substring(12,14);
                 HashMap<String, Object>item = new HashMap<String, Object>();
                 item.put(ID,Integer.toString(i+1));

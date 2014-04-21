@@ -75,23 +75,8 @@ public class FragmentHistory extends Fragment {
                 intent.putExtra("FROM",from);
                 intent.putExtra("TO",to);
                 startActivity(intent);
-                /*Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
-                intent.putExtra("START",true);
-                intent.putExtra("FROM",customFrom);
-                intent.putExtra("TO",customTo);
-                startActivityForResult(intent, 1);*/
             }
         });
-        /*((Button)view.findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SetCustomDateTime.class);
-                intent.putExtra("END",true);
-                intent.putExtra("FROM",customFrom);
-                intent.putExtra("TO",customTo);
-                startActivityForResult(intent,2);
-            }
-        });*/
         textViewFrom = (EditText)view.findViewById(R.id.editText);
         textViewFrom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +102,7 @@ public class FragmentHistory extends Fragment {
 
         listObjects.clear();
         listView = (ListView)view.findViewById(R.id.listView);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Calendar c = GregorianCalendar.getInstance();
         int y = c.get(Calendar.YEAR);
         int m = c.get(Calendar.MONTH) + 1;
@@ -126,7 +111,7 @@ public class FragmentHistory extends Fragment {
         String year = Integer.toString(y);
         String month = m < 10 ? "0" + Integer.toString(m) : Integer.toString(m);
         String day = d < 10 ? "0" + Integer.toString(d) : Integer.toString(d);
-        String fromDataeToday = year + "-" + month + "-" + day + " " + "00-00-00";
+        String fromDataeToday = year + "/" + month + "/" + day + " " + "00:00:00";
         String toDataeToday = format.format(new Date());
 
         c.add(Calendar.DAY_OF_YEAR, -3);
@@ -138,7 +123,7 @@ public class FragmentHistory extends Fragment {
         month = m < 10 ? "0" + Integer.toString(m) : Integer.toString(m);
         day = d < 10 ? "0" + Integer.toString(d) : Integer.toString(d);
 
-        String fromDataePast = year + "-" + month + "-" + day + " " + "00-00-00";
+        String fromDataePast = year + "/" + month + "/" + day + " " + "00:00:00";
         String toDataePast = format.format(new Date());
 
         HashMap<String, Object>item = new HashMap<String, Object>();

@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.VehicleDetailInfoActivity;
+import com.lixtracking.lt.common.Constant;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.GpsData;
 import com.lixtracking.lt.data_class.VehicleData;
@@ -64,11 +65,13 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private int map_type = GoogleMap.MAP_TYPE_NORMAL;
     private SharedPreferences sharedPreferences;
     private GoogleMap map = null;
+    private float currentZoom = Constant.mapZoom;
     View view = null;
     List<VehicleData> vehicleDatas = null;
-    //List<GpsData> gpsDatas = null;
+    List<GpsData> gpsDatas = new ArrayList<GpsData>();
     GpsData firstActive = null;
     List<Marker>markerList = new ArrayList<Marker>();
+    List<Marker>activeMarker = new ArrayList<Marker>();
     private int currentMarker = 0;
 
     private boolean updateIsRunning = false;
@@ -81,7 +84,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private int updateInterval = 5000;
 
     TextView indicator = null;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +107,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             if (map == null) {
                 // Try to obtain the map from the SupportMapFragment.
                 map = ((SupportMapFragment) MainActivity.fragmentManager.findFragmentById(R.id.map)).getMap();
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(Constant.baseLatLng, currentZoom));
                 if(map != null) {
                     map.setMapType(map_type);
                     map.setOnInfoWindowClickListener(this);
@@ -113,18 +116,25 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         } catch (InflateException e) {
             e.printStackTrace();
         }
+        /******************************************************************************************/
         ((ImageButton)view.findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if((markerList.size()-1) > (currentMarker)) {
-                    if(markerList.get(currentMarker).getPosition().latitude > 0) {
-                        markerList.get(currentMarker).showInfoWindow();
-                        map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
-                    }
-                    if(currentMarker < (markerList.size()-1))
+                    //markerList.get(currentMarker).getPosition().latitude == -100 && (markerList.size()-1) > (currentMarker)
+                    while (!markerList.get(currentMarker).isVisible() && (markerList.size()-1) > currentMarker) {
                         currentMarker++;
-                    Log.i("info"," + CURRENT MARKER " + Integer.toString(currentMarker));
+                        Log.i("info"," .. " + Integer.toString(currentIndex));
+                    }
+                    if((markerList.size()-1) >= (currentMarker)) {
+                        if(markerList.get(currentMarker).isVisible()){
+                            markerList.get(currentMarker).showInfoWindow();
+                            map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
+                            currentMarker++;
+                        }
+                    }
                 }else {
+                    currentMarker = 0;
                     Log.i("info"," + NO MARKER");
                 }
             }
@@ -133,18 +143,24 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             @Override
             public void onClick(View view) {
                 if((currentMarker) > 0 && (markerList.size() > 0)) {
-                    if (markerList.get(currentMarker).getPosition().latitude > 0){
-                        markerList.get(currentMarker).showInfoWindow();
-                        map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
-                    }
-                    if(currentMarker > 0)
+                    while (!markerList.get(currentMarker).isVisible() && currentMarker > 0) {
                         currentMarker--;
-                    Log.i("info"," - CURRENT MARKER " + Integer.toString(currentMarker));
+                        Log.i("info"," .. " + Integer.toString(currentIndex));
+                    }
+                    if((currentMarker > 0) && (markerList.size() > 0)) {
+                        if(markerList.get(currentMarker).isVisible()){
+                            markerList.get(currentMarker).showInfoWindow();
+                            map.animateCamera(CameraUpdateFactory.newLatLng(markerList.get(currentMarker).getPosition()));
+                            currentMarker--;
+                        }
+                    }
                 }else {
+                    currentMarker = markerList.size()-1;
                     Log.i("info"," - NO MARKER");
                 }
             }
         });
+        /******************************************************************************************/
         context = getActivity();
         return view;
     }
@@ -156,8 +172,10 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         Log.i("info"," FragmentMap RESUME");
         super.onResume();
         vehicleDatas = ((MainActivity)getActivity()).getVehicle();
-        if(vehicleDatas != null)
+        if(vehicleDatas != null) {
+            gpsDatas = new ArrayList<GpsData>(vehicleDatas.size());
             startUpdateTask();
+        }
     }
     @Override
     public void onPause() {
@@ -210,7 +228,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         new getRealTimeGpsData().execute(vehicleDatas.get(currentIndex).gps_id, Integer.toString(currentIndex));
                     }
                 });
-                //new getRealTimeGpsData().execute(vehicleDatas.get(currentIndex).gps_id, Integer.toString(currentIndex));
             }
         }
     }
@@ -258,6 +275,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 intent.putExtra(VehicleData.MAKE,vehicleDatas.get(i).make);
                 intent.putExtra(VehicleData.STATUS,vehicleDatas.get(i).status);
                 intent.putExtra(VehicleData.YEAR,vehicleDatas.get(i).year);
+                //intent.putExtra(GpsData.GPS_ID, gpsDatas.get(i).gps_id);
+                //intent.putExtra(GpsData.SPEED,gpsDatas.get(i).speed);
+                //intent.putExtra(GpsData.GPS_TIME,gpsDatas.get(i).gps_time);
                 getActivity().startActivity(intent);
                 break;
             }
@@ -324,16 +344,23 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 if(map != null) {
                     if(tmpData == null || tmpData.isEmpty()){
                         Marker marker = map.addMarker(new MarkerOptions()
-                                .position(new LatLng(-100.0,-100.0))
-                                .title(" GPS ID :")
+                                .position(new LatLng(0.0,0.0))
+                                .title(" GPS ID : -")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_car_gray))
-                                .snippet("speed :"));
+                                .snippet("speed : -"));
                         markerList.add(marker);
+                         marker.setVisible(false);
                     }else{
+                        Log.i("info"," : ");
+                        try{
+                            gpsDatas.set(currentIndex,tmpData.get(0));
+                        }catch (IndexOutOfBoundsException e) {
+                            gpsDatas.add(tmpData.get(0));
+                        }
                         float lat = Float.parseFloat(tmpData.get(0).lat);
                         float lng = Float.parseFloat(tmpData.get(0).lng);
-                        Log.i("info","lat :" + Float.toString(lat));
-                        Log.i("info","lng :" + Float.toString(lng));
+                        //Log.i("info","lat :" + Float.toString(lat));
+                        //Log.i("info","lng :" + Float.toString(lng));
                         LatLng latLon = new LatLng(lat,lng);
 
                         int r = R.drawable.marker_car_gray;
@@ -345,7 +372,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                                             .position(latLon)
                                             .title("VIN : " + vehicleDatas.get(currentIndex).vin)
                                             .icon(BitmapDescriptorFactory.fromResource(r))
-                                            .snippet("speed : " + tmpData.get(0).speed)
+                                            .snippet("speed : " + tmpData.get(0).speed + " km/h")
                             );
                             markerList.add(marker);
                             if(lat == 0.0 || lng == 0.0) {
@@ -353,7 +380,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             }else {
                                 marker.setVisible(true);
                             }
-                            Log.i("info"," Add new marker - ");
+                            //Log.i("info"," Add new marker - ");
                             if(firstActive == null) {
                                 firstActive = tmpData.get(0);
                                 map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
@@ -364,7 +391,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             if((lng != -100.0f) && (lng != -100.0f)) {
                                 markerList.get(currentIndex).setPosition(latLon);
                                 markerList.get(currentIndex).setTitle(" VIN : " + vehicleDatas.get(currentIndex).vin);
-                                markerList.get(currentIndex).setSnippet("speed : " + tmpData.get(0).speed);
+                                markerList.get(currentIndex).setSnippet("speed : " + tmpData.get(0).speed  + " km/h");
                                 markerList.get(currentIndex).setIcon(BitmapDescriptorFactory.fromResource(r));
                             }
                             if(lat == 0.0 || lng == 0.0) {
@@ -372,7 +399,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             }else {
                                 markerList.get(currentIndex).setVisible(true);
                             }
-                            Log.i("info"," Update exist marker - ");
+                            //Log.i("info"," Update exist marker - ");
                         }
                     }
                     currentIndex++;
@@ -380,10 +407,10 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             }
             updateIsRunning = false;
             indicator.setVisibility(View.INVISIBLE);
-            Log.i("info"," currentIndex : " + Integer.toString(currentIndex));
+            /*Log.i("info"," currentIndex : " + Integer.toString(currentIndex));
             Log.i("info"," Marker list size : " + Integer.toString(markerList.size()));
             Log.i("info"," END: getRealTimeGpsData FragmentMap");
-            Log.i("info","---------------------------------------------------------------------");
+            Log.i("info","---------------------------------------------------------------------");*/
         }
     }
 

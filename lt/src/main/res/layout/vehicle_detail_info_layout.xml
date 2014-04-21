@@ -3,7 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_gray">
+    android:background="@color/background_light">
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -251,6 +251,121 @@
                     android:layout_alignParentEnd="true"
                     android:layout_toRightOf="@+id/textView11"
                     android:layout_marginLeft="5dp"/>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_below="@+id/textView11"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#ff3dc060">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="GPS ID"
+                        android:id="@+id/tv_gps_id"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_below="@+id/tv_gps_id"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="Speed : "
+                            android:id="@+id/textView15"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignRight="@+id/textView16"
+                            android:layout_alignEnd="@+id/textView16"
+                            android:textColor="#FFFFFF"
+                            android:layout_marginBottom="5dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="Direction :"
+                            android:id="@+id/textView16"
+                            android:layout_below="@+id/textView15"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignRight="@+id/textView17"
+                            android:layout_alignEnd="@+id/textView17"
+                            android:textColor="#FFFFFF"
+                            android:layout_marginBottom="5dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="GPS Time :"
+                            android:id="@+id/textView17"
+                            android:layout_below="@+id/textView16"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="#FFFFFF"
+                            android:layout_marginBottom="5dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text=""
+                            android:id="@+id/tv_speed"
+                            android:layout_above="@+id/textView16"
+                            android:layout_toRightOf="@+id/textView15"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginLeft="5dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text=""
+                            android:id="@+id/tv_direction"
+                            android:layout_alignTop="@+id/textView16"
+                            android:layout_toRightOf="@+id/textView16"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginLeft="5dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text=""
+                            android:id="@+id/tv_gps_time"
+                            android:layout_alignTop="@+id/textView17"
+                            android:layout_toRightOf="@+id/textView17"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginLeft="5dp"/>
+                    </RelativeLayout>
+                </RelativeLayout>
 
             </RelativeLayout>
         </RelativeLayout>
