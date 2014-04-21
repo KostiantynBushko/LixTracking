@@ -71,7 +71,9 @@ public class FragmentTracking extends Fragment {
 
     private GoogleMap map = null;
     private LatLng lastLatLng = null;
+    private LatLng firstLatLng = null;
     private float currentZoom = Constant.mapZoom;
+    private Marker firstMarker = null;
     private PolylineOptions polylineOptions = new PolylineOptions();
 
     View view = null;
@@ -115,6 +117,9 @@ public class FragmentTracking extends Fragment {
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(Constant.baseLatLng, currentZoom));
                     UiSettings uiSettings = map.getUiSettings();
                     uiSettings.setMyLocationButtonEnabled(true);
+                    polylineOptions.color(Color.argb(125, 0, 255, 0));
+                    polylineOptions.width(8);
+                    polylineOptions.zIndex(3);
                     map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                         @Override
                         public boolean onMyLocationButtonClick() {
@@ -284,57 +289,53 @@ public class FragmentTracking extends Fragment {
                         Log.i("info","-----------------------------------------------------------");*/
                         if(lat != 0.0f && lng != 0.0f) {
                             LatLng currentLatLon = new LatLng(lat,lng);
+                            if(firstLatLng == null)
+                                firstLatLng = currentLatLon;
                             boolean isShow = false;
                             if((marker != null) && marker.isInfoWindowShown()){
                                 isShow = true;
                             }
+
                             map.clear();
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), currentZoom));
 
                             if(lastLatLng != null) {
                                 double distance = MapHelper.distance(currentLatLon.latitude, currentLatLon.longitude,
                                         lastLatLng.latitude, lastLatLng.longitude, "K");
-                                Log.i("info"," Distance =  " + Float.toString((float)(distance)));
-                                if((distance * 1000) > 15) {
-                                    Log.i("info"," Add new point ");
-                                    Log.i("info","--------------------------------------------------------------------");
-                                    polylineOptions.color(Color.argb(255, 255, 0, 0));
-                                    polylineOptions.width(8);
+                                Log.i("info", " Distance =  " + Float.toString((float) (distance)));
+                                if((distance * 1000) > 5) {
                                     polylineOptions.add(currentLatLon);
-                                }else {
-                                    Log.i("info","--------------------------------------------------------------------");
                                 }
                             }
-
+                            //int r = vehicleData.status == 1 ? R.drawable.marker_car : R.drawable.marker_car_gray;
+                            if(polylineOptions.getPoints().size() == 0){
+                                polylineOptions.add(firstLatLng);
+                                marker = map.addMarker(new MarkerOptions()
+                                        .position(currentLatLon)
+                                        .anchor(0.5f,0.5f).rotation(gpsDatas.get(0).direction)
+                                        .title(" VIN : " + vehicleData.vin)
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
+                                        .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
+                            }else {
+                                marker = map.addMarker(new MarkerOptions()
+                                        .position(currentLatLon)
+                                        .anchor(0.5f,0.5f).rotation(gpsDatas.get(0).direction)
+                                        .title(" VIN : " + vehicleData.vin)
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
+                                        .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
+                                double distance = MapHelper.distance(currentLatLon.latitude, currentLatLon.longitude,
+                                        firstLatLng.latitude, firstLatLng.longitude, "K");
+                                if((distance * 1000) > 20) {
+                                    firstMarker = map.addMarker(new MarkerOptions()
+                                                    .position(firstLatLng).title("START")
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker_pink))
+                                    );
+                                }
+                            }
+                            Log.i("info"," Directions = " + Double.toString(gpsDatas.get(0).direction));
+                            Log.i("info"," Pints count = " + polylineOptions.getPoints().size());
                             map.addPolyline(polylineOptions);
 
-                            //int r = R.drawable.marker_car_gray;
-                            int r = vehicleData.status == 1 ? R.drawable.marker_car : R.drawable.marker_car_gray;
-                            /*if(vehicleData.status == 1) {
-                                r = R.drawable.marker_car;
-                            }*/
-                            marker = map.addMarker(new MarkerOptions()
-                                    .position(currentLatLon)
-                                    .title(" VIN : " + vehicleData.vin)
-                                    .icon(BitmapDescriptorFactory.fromResource(r))
-                                    .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
-
-                            /*if(marker == null) {
-                                marker = map.addMarker(new MarkerOptions()
-                                                .position(latLon)
-                                                .title(" VIN : " + vehicleData.vin)
-                                                .icon(BitmapDescriptorFactory.fromResource(r))
-                                                .snippet("speed : " + gpsDatas.get(0).speed  + " km/h")
-                                );
-                            } else {
-                                marker.setPosition(latLon);
-                                marker.setTitle(" VIN : " + vehicleData.vin);
-                                marker.setSnippet("speed : " + gpsDatas.get(0).speed  + " km/h");
-                                marker.setIcon(BitmapDescriptorFactory.fromResource(r));
-                                if(isShow){
-                                    marker.showInfoWindow();
-                                }
-                            }*/
                             lastLatLng = currentLatLon;
                         }
                     }

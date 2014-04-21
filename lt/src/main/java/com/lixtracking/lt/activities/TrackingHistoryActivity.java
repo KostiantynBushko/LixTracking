@@ -300,8 +300,10 @@ public class TrackingHistoryActivity extends FragmentActivity implements View.On
                             .title(" Start")
                             .snippet("Lat " + Double.toString(firstPoint.latitude) + " Lng : " + Double.toString(firstPoint.longitude)));
                     currentMarker = map.addMarker(new MarkerOptions()
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
                             .position(firstPoint)
+                            .anchor(0.5f,0.5f)
+                            .rotation(gpsDatas.get(currentIndex).direction)
                             .title(" Finish")
                             .snippet("Lat " + Double.toString(firstPoint.latitude) + " Lng : " + Double.toString(firstPoint.longitude)));
                     currentMarker.setVisible(false);
@@ -467,7 +469,8 @@ public class TrackingHistoryActivity extends FragmentActivity implements View.On
                         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(firstPoint, currentZoom);
                         map.moveCamera(cameraUpdate);
                         currentMarker = map.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
+                                .anchor(0.5f, 0.5f)
                                 .position(firstPoint).title(" Finish")
                                 .snippet("Lat " + Double.toString(firstPoint.latitude)
                                         + " Lng : " + Double.toString(firstPoint.longitude)));
@@ -566,12 +569,26 @@ public class TrackingHistoryActivity extends FragmentActivity implements View.On
     /**/
     /**********************************************************************************************/
     private void addFirstLast(LatLng currentLatLog) {
+        LatLng prev = null;
+        try{
+            double lat = Double.parseDouble(gpsDatas.get(currentIndex-1).lat);
+            double lng = Double.parseDouble(gpsDatas.get(currentIndex-1).lng);
+            prev = new LatLng(lat,lng);
+        }catch (IndexOutOfBoundsException e){
+            double lat = Double.parseDouble(gpsDatas.get(currentIndex).lat);
+            double lng = Double.parseDouble(gpsDatas.get(currentIndex).lng);
+            prev = new LatLng(lat,lng);
+        }
+
         currentMarker = map.addMarker(new MarkerOptions().position(currentLatLog)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_direction_down))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
+                .anchor(0.5f,0.5f)
+                .rotation(gpsDatas.get(currentIndex).direction)
                 .title("End").snippet(
                         "Lat " + Double.toString(currentLatLog.latitude)
                                 + " Lng : " + Double.toString(currentLatLog.longitude)
                 ));
+
         firstMarker = map.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker_pink))
                 .position(firstPoint)
@@ -613,8 +630,8 @@ public class TrackingHistoryActivity extends FragmentActivity implements View.On
     }
 
     private void setPolyLineOptions(PolylineOptions polylineOptions) {
-        polylineOptions.color(Color.argb(lineAlpha,255,0,0));
-        //polylineOptions.geodesic(true);
+        polylineOptions.color(Color.argb(lineAlpha,0,0,255));
         polylineOptions.width(8);
+        polylineOptions.zIndex(300);
     }
 }
