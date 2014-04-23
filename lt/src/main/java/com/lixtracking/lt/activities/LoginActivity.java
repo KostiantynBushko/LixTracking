@@ -98,11 +98,10 @@ public class LoginActivity extends Activity implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button:
-
                 if(eUserName.length() == 0 || ePassword.length() == 0){
-                    message = "Please complate fields";
+                    message = "Please complete fields";
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                    builder.setTitle("Error");
+                    builder.setTitle("Warning");
                     builder.setMessage(message);
                     builder.setCancelable(true);
                     builder.setPositiveButton("cancel",new DialogInterface.OnClickListener() {
@@ -119,12 +118,6 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                 break;
             default: break;
         }
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        //overridePendingTransition(R.anim.in_a,R.anim.out_a);
     }
     /**********************************************************************************************/
     /* Login async task */
