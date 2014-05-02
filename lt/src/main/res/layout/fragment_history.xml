@@ -3,7 +3,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:background="@color/dark_gray">
 
     <ListView
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="10dp"/>
 
     <Button
         android:layout_width="match_parent"
@@ -29,22 +30,20 @@
         android:layout_marginLeft="5dp"
         android:editable="false"/>
 
-    <EditText
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
-        android:layout_below="@+id/listView"
-        android:layout_alignRight="@+id/listView"
-        android:layout_alignEnd="@+id/listView"
-        android:layout_alignLeft="@+id/listView"
-        android:layout_alignStart="@+id/listView"
         android:background="@drawable/edit_text_clasic"
-        android:layout_marginTop="10dp"
         android:editable="false"
         android:textAlignment="center"
-        android:textColor="@color/dark_gray"/>
+        android:textColor="@color/dark_gray"
+        android:layout_below="@+id/textView"
+        android:layout_alignRight="@+id/listView"
+        android:layout_alignEnd="@+id/listView"
+        android:layout_toRightOf="@+id/textView2" />
 
-    <EditText
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText2"
@@ -58,5 +57,47 @@
         android:editable="false"
         android:textAlignment="center"
         android:textColor="@color/dark_gray"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Set custom date time"
+        android:id="@+id/textView"
+        android:textColor="#FFFFFF"
+        android:layout_below="@+id/listView"
+        android:layout_alignLeft="@+id/listView"
+        android:layout_alignStart="@+id/listView"
+        android:gravity="center"
+        android:layout_alignRight="@+id/listView"
+        android:layout_alignEnd="@+id/listView"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From"
+        android:id="@+id/textView2"
+        android:layout_alignTop="@+id/editText"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView"
+        android:layout_above="@+id/editText2"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/label_clasic"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To"
+        android:id="@+id/textView3"
+        android:layout_alignTop="@+id/editText2"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_alignRight="@+id/textView2"
+        android:layout_alignEnd="@+id/textView2"
+        android:layout_alignBottom="@+id/editText2"
+        android:background="@drawable/label_clasic"
+        android:gravity="center"/>
 
 </RelativeLayout>

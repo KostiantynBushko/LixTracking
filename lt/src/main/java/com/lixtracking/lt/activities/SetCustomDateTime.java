@@ -36,16 +36,23 @@ public class SetCustomDateTime extends Activity implements DatePicker.OnDateChan
             String y = from.substring(0,4);
             String m = from.substring(5,7);
             String d = from.substring(8,10);
-            Log.i("info","DATE : " + y  + "/" + m + "/ " + d);
+            String h = from.substring(11,13);
+            String min = from.substring(14,16);
+            Log.i("info","DATE : " + y  + "/" + m + "/ " + d + " " + h + ":" + min);
             datePicker.init(Integer.parseInt(y), Integer.parseInt(m) - 1, Integer.parseInt(d), this);
+            timePicker.setCurrentHour(Integer.parseInt(h));
+            timePicker.setCurrentMinute(Integer.parseInt(min));
         }else if(intent.getBooleanExtra("END",false)) {
             String y = to.substring(0,4);
             String m = to.substring(5,7);
             String d = to.substring(8,10);
-            Log.i("info","DATE : " + y  + "/" + m + "/" + d);
+            String h = to.substring(11,13);
+            String min = to.substring(14,16);
+            Log.i("info","DATE : " + y  + "/" + m + "/ " + d + " " + h + ":" + min);
             datePicker.init(Integer.parseInt(y),Integer.parseInt(m)-1,Integer.parseInt(d),this);
+            timePicker.setCurrentHour(Integer.parseInt(h));
+            timePicker.setCurrentMinute(Integer.parseInt(min));
         }
-
         set = (Button)findViewById(R.id.button);
         set.setOnClickListener(new View.OnClickListener() {
             @Override

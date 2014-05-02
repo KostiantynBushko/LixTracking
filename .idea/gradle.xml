@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="F:\s_workspace\LixTracking" />
-            <option value="F:\s_workspace\LixTracking\lt" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/lt" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -45,8 +45,8 @@ public class FragmentHistory extends Fragment {
     String customFrom = null;
     String customTo = null;
 
-    EditText textViewFrom = null;
-    EditText textViewTo = null;
+    Button textViewFrom = null;
+    Button textViewTo = null;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceSatte) {
@@ -77,7 +77,7 @@ public class FragmentHistory extends Fragment {
                 startActivity(intent);
             }
         });
-        textViewFrom = (EditText)view.findViewById(R.id.editText);
+        textViewFrom = (Button)view.findViewById(R.id.editText);
         textViewFrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,7 +88,7 @@ public class FragmentHistory extends Fragment {
                 startActivityForResult(intent, 1);
             }
         });
-        textViewTo = (EditText)view.findViewById(R.id.editText2);
+        textViewTo = (Button)view.findViewById(R.id.editText2);
         textViewTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

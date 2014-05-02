@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.lixtracking.lt.MainActivity;
 import com.lixtracking.lt.R;
 import com.lixtracking.lt.activities.AlertMapActivity;
+import com.lixtracking.lt.common.Settings;
 import com.lixtracking.lt.common.URL;
 import com.lixtracking.lt.data_class.AlertData;
 import com.lixtracking.lt.parsers.ParseAlertList;
@@ -137,7 +138,7 @@ public class FragmentAlarm extends Fragment{
 
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>(3);
-            nameValuePairList.add(new BasicNameValuePair("user_id", "admin"));
+            nameValuePairList.add(new BasicNameValuePair("user_id", new Settings(getActivity()).getUserId()));
             nameValuePairList.add(new BasicNameValuePair("gps_id", ""));
             nameValuePairList.add(new BasicNameValuePair("start", "0"));
             nameValuePairList.add(new BasicNameValuePair("limit", "500"));
