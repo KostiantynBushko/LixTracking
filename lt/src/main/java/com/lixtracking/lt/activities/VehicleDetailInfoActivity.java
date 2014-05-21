@@ -58,10 +58,6 @@ public class VehicleDetailInfoActivity extends Activity{
         vehicleData.user_id = intent.getStringExtra(VehicleData.USER_ID);
         vehicleData.status = intent.getIntExtra(VehicleData.STATUS,0);
         vehicleData.year = intent.getIntExtra(VehicleData.YEAR,0);
-        //gpsData.gps_id = intent.getStringExtra(GpsData.GPS_ID);
-        //gpsData.speed = intent.getIntExtra(GpsData.SPEED,0);
-        //gpsData.direction = intent.getFloatExtra(GpsData.DIRECTION,0.0f);
-
 
         ((TextView)findViewById(R.id.text1)).setText(vehicleData.first_name + " " + vehicleData.last_name);
         ((TextView)findViewById(R.id.text2)).setText("user id : " + vehicleData.user_id);
@@ -73,7 +69,6 @@ public class VehicleDetailInfoActivity extends Activity{
         ((TextView)findViewById(R.id.tv_gps_id)).setText("GPS ID : " + vehicleData.gps_id);
 
         new getRealTimeGpsData().execute(vehicleData.gps_id);
-
     }
 
     class getRealTimeGpsData extends AsyncTask<String, Void, String> {

@@ -78,7 +78,8 @@
         </activity>
 
         <activity android:name=".activities.AlertMapActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:label="Alert Map"></activity>
         <activity android:name=".activities.AboutActivity"
             android:screenOrientation="portrait"
             android:label="About"></activity>

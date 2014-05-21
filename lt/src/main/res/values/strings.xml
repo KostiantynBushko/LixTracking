@@ -12,7 +12,7 @@
     <string name="video">Video</string>
     <string name="email">EMail</string>
 
-    <string name="about_lite_1">This applies to software runs more than Android 3.0 version.</string>
+    <string name="about_lite_1">This applies to software runs more than Android Gingerbread 2.3.3 version.</string>
     <string name="about_lite_2">This software provide monitoring location on the map of vehicles.</string>
     <string name="about_lite_3">This software need to be networked, will produce the internet traffic, traffic fee charging standard please refer to the telecom operators.</string>
     <string name="web_site_link">http://216.55.141.100:8080</string>

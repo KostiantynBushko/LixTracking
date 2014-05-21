@@ -74,6 +74,7 @@ public class FragmentTracking extends Fragment {
     private LatLng firstLatLng = null;
     private float currentZoom = Constant.mapZoom;
     private Marker firstMarker = null;
+    private float direction = 0;
     private PolylineOptions polylineOptions = new PolylineOptions();
 
     View view = null;
@@ -275,19 +276,14 @@ public class FragmentTracking extends Fragment {
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }else {
-                /*Log.i("info","--------------------------------------------------------------------");
-                Log.i("info","result : " + resultString);
-                Log.i("info","--------------------------------------------------------------------");*/
                 List<GpsData> tmpDatas = new ParseGpsData(context).parceXml(resultString);
+
                 if((tmpDatas != null) && (!tmpDatas.isEmpty())) {
                     gpsDatas = tmpDatas;
                     if(map != null) {
                         Double lat = Double.parseDouble(gpsDatas.get(0).lat);
                         Double lng = Double.parseDouble(gpsDatas.get(0).lng);
-                        /*Log.i("info","lng : " + gpsDatas.get(0).lng);
-                        Log.i("info","lat : " + gpsDatas.get(0).lat);
-                        Log.i("info","time : " + gpsDatas.get(0).lat);
-                        Log.i("info","-----------------------------------------------------------");*/
+
                         if(lat != 0.0f && lng != 0.0f) {
                             LatLng currentLatLon = new LatLng(lat,lng);
                             if(firstLatLng == null)
@@ -301,23 +297,21 @@ public class FragmentTracking extends Fragment {
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), currentZoom));
                             float d = 0;
                             if(lastLatLng != null) {
-                                d = MapHelper.direction(firstLatLng.latitude,firstLatLng.longitude, lastLatLng.latitude,lastLatLng.longitude);
-                                double distance = MapHelper.distance(currentLatLon.latitude, currentLatLon.longitude,
-                                        lastLatLng.latitude, lastLatLng.longitude, "K");
+                                double distance = MapHelper.distance(currentLatLon.latitude, currentLatLon.longitude, lastLatLng.latitude, lastLatLng.longitude, "K");
+                                d = MapHelper.direction(currentLatLon.latitude,currentLatLon.longitude, lastLatLng.latitude,lastLatLng.longitude);
+
                                 Log.i("info", " Distance =  " + Float.toString((float) (distance)));
                                 if((distance * 1000) > 5) {
                                     polylineOptions.add(currentLatLon);
+                                    direction = MapHelper.direction(currentLatLon.latitude,currentLatLon.longitude, lastLatLng.latitude,lastLatLng.longitude);
                                 }
-
                             }
-                            //int r = vehicleData.status == 1 ? R.drawable.marker_car : R.drawable.marker_car_gray;
-                            //float rotate = gpsDatas.get(0).direction;
                             if(polylineOptions.getPoints().size() == 0){
                                 polylineOptions.add(firstLatLng);
                                 marker = map.addMarker(new MarkerOptions()
                                         .position(currentLatLon)
                                         .anchor(0.5f,0.5f)
-                                        .rotation(/*rotate*/ d)
+                                        .rotation(direction)
                                         .title(" VIN : " + vehicleData.vin)
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
                                         .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
@@ -325,7 +319,7 @@ public class FragmentTracking extends Fragment {
                                 marker = map.addMarker(new MarkerOptions()
                                         .position(currentLatLon)
                                         .anchor(0.5f,0.5f)
-                                        .rotation(/*rotate*/d)
+                                        .rotation(direction)
                                         .title(" VIN : " + vehicleData.vin)
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_top_37x37))
                                         .snippet("speed : " + gpsDatas.get(0).speed  + " km/h"));
@@ -338,8 +332,6 @@ public class FragmentTracking extends Fragment {
                                     );
                                 }
                             }
-                            //Log.i("info"," Directions = " + Double.toString(gpsDatas.get(0).direction));
-                            //Log.i("info"," Pints count = " + polylineOptions.getPoints().size());
                             map.addPolyline(polylineOptions);
 
                             lastLatLng = currentLatLon;
